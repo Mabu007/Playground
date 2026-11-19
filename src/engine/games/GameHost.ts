@@ -19,8 +19,14 @@ export class GameHost {
       if (current !== this.generation) return false
       const instance = await module.mount(context)
       if (current !== this.generation) { instance.destroy(); return false }
+      try {
+        instance.start()
+      } catch (error) {
+        // A failed start must not leave a mounted canvas or listeners alive.
+        instance.destroy()
+        throw error
+      }
       this.instance = instance
-      instance.start()
       return true
     } finally {
       if (current === this.generation) this.loading = false
