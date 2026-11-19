@@ -22,7 +22,21 @@ export class AudioDirector {
   private destroyed = false
   private paused = false
   private lastPickup = 0
-  constructor(settings: KasiSound) { this.settings = { ...settings } }
+  private autoMuted = false
+  private readonly onBlur = () => { this.autoMuted = true; this.applyGain() }
+  private readonly onFocus = () => { this.autoMuted = false; this.applyGain() }
+  private readonly onVisibility = () => {
+    this.autoMuted = typeof document !== 'undefined' && document.visibilityState === 'hidden'
+    this.applyGain()
+  }
+  constructor(settings: KasiSound) {
+    this.settings = { ...settings }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('blur', this.onBlur)
+      window.addEventListener('focus', this.onFocus)
+      document.addEventListener('visibilitychange', this.onVisibility)
+    }
+  }
   configure(settings: KasiSound) {
     this.settings = { ...settings }
     this.applyGain()
@@ -58,7 +72,7 @@ export class AudioDirector {
     const volume = this.settings.muted ? 0 : Math.max(0,Math.min(1,this.settings.volume))
     const now = this.context.currentTime
     this.effects.gain.setTargetAtTime(volume * .4, now, .03)
-    const level = this.state === 'off' || this.paused ? 0 : this.state === 'menu' ? .22 : this.state === 'power' ? .38 : this.state === 'danger' ? .34 : .31
+    const level = this.state === 'off' || this.paused || this.autoMuted ? 0 : this.state === 'menu' ? .22 : this.state === 'power' ? .38 : this.state === 'danger' ? .34 : .31
     this.music.gain.setTargetAtTime(volume * (this.settings.musicVolume ?? .75) * level, now, .11)
   }
   mode(mode: KasiMusicMode) {
@@ -157,6 +171,11 @@ export class AudioDirector {
   dispose() {
     if (this.destroyed) return
     this.destroyed = true
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('blur', this.onBlur)
+      window.removeEventListener('focus', this.onFocus)
+      document.removeEventListener('visibilitychange', this.onVisibility)
+    }
     if (this.timer !== null) clearInterval(this.timer)
     this.timer = null
     this.state = 'off'
