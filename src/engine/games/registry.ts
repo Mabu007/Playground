@@ -21,7 +21,8 @@ export const games: GameInfo[] = [
       'Grab golden power boosts to turn the tables and tag your pursuers',
       'Press P or Escape to pause. Press R to restart your run',
     ],
-    controls: [{ label: 'MOVE', keys: ['←', '↑', '↓', '→'] }, { label: 'PAUSE', keys: ['P'] }],
+    controls: [{ label: 'MOVE', keys: ['←', '↑', '↓', '→'] }],
+    entry: () => import('../../games/kasi-maze/CharacterSelect'),
     load: () => import('../../games/kasi-maze'),
   },
   {
