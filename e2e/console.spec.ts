@@ -21,6 +21,10 @@ test('Kasi Maze launches real Phaser gameplay with scoring, pause, restart and e
   await page.goto('/')
   await page.getByRole('button', { name: /play now/i }).first().click()
   await expect(page.getByTestId('game-screen')).toBeVisible()
+  await expect(page.getByTestId('kasi-character-select')).toBeVisible()
+  await page.getByTestId('character-zee').click()
+  await expect(page.getByTestId('character-zee')).toHaveAttribute('aria-pressed','true')
+  await page.getByTestId('start-kasi').click()
   await expect(page.locator('.phaser-mount canvas')).toHaveCount(1, { timeout: 25_000 })
   // The short ready phase is intentional; movement collects actual map objects.
   await page.waitForTimeout(2500)
@@ -50,6 +54,7 @@ test('repeat launch and exit does not leave canvases running', async ({ page }) 
   await page.goto('/')
   for (let cycle = 0; cycle < 3; cycle++) {
     await page.getByRole('button', { name: /play now/i }).first().click()
+    await page.getByTestId('start-kasi').click()
     await expect(page.locator('.phaser-mount canvas')).toHaveCount(1, { timeout: 25_000 })
     await page.getByRole('button', { name: /back to library/i }).first().click()
     await expect(page.locator('canvas')).toHaveCount(0)
@@ -127,4 +132,58 @@ test('mobile navigation is tappable and the featured actions stay in the hero', 
   await expect(page.getByRole('navigation', { name: 'Mobile navigation' })).toHaveCount(0)
   await expect(page.locator('[data-game-card="kasi-maze"]')).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(true)
+})
+
+test('choose four original characters using both keyboard and mouse before the session starts', async ({ page }) => {
+  await page.goto('/')
+  await page.getByTestId('hero-play').click()
+  const select = page.getByTestId('kasi-character-select')
+  await expect(select).toBeVisible()
+  for (const id of ['sbu','zee','katlego','thami']) {
+    await expect(page.getByTestId('character-'+id)).toBeVisible()
+    await page.getByTestId('character-'+id).click()
+    await expect(page.getByTestId('character-'+id)).toHaveAttribute('aria-pressed','true')
+  }
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByTestId('character-sbu')).toHaveAttribute('aria-pressed','true')
+  await page.keyboard.press('Enter')
+  await expect(select).toHaveCount(0)
+  await expect(page.locator('.phaser-mount canvas')).toHaveCount(1,{timeout:25_000})
+  await expect(page.getByTestId('score')).toHaveText('0')
+  await page.getByRole('button',{name:'Exit to library'}).click()
+  await expect(page.locator('canvas')).toHaveCount(0)
+})
+
+test('game selection allows clean escape without starting or counting a paid session',async({page})=>{
+  await page.goto('/')
+  await page.getByTestId('hero-play').click()
+  await expect(page.getByTestId('kasi-character-select')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('game-screen')).toHaveCount(0)
+  await expect(page.locator('.phaser-mount canvas')).toHaveCount(0)
+  await expect(page.getByText('YOUR ARCADE STORY.')).toBeVisible()
+})
+
+test('scrollbars stay invisible without disabling scroll',async({page})=>{
+  await page.goto('/')
+  await expect.poll(async()=>page.evaluate(()=>document.documentElement.scrollHeight>innerHeight)).toBe(true)
+  const before=await page.evaluate(()=>scrollY)
+  await page.mouse.wheel(0,900)
+  await expect.poll(async()=>page.evaluate(()=>scrollY)).toBeGreaterThan(before)
+  const hidden=await page.evaluate(()=>{
+    const root=getComputedStyle(document.documentElement).scrollbarWidth
+    const shelf=getComputedStyle(document.querySelector('.shelf-grid')!).scrollbarWidth
+    return root==='none'&&shelf==='none'
+  })
+  expect(hidden).toBe(true)
+})
+
+test('game graphics stay visible on mobile and no horizontal scrolling is introduced',async({page})=>{
+  await page.setViewportSize({width:390,height:844})
+  await page.goto('/')
+  await page.getByTestId('hero-play').click()
+  await expect(page.getByTestId('kasi-character-select')).toBeVisible()
+  await expect(page.getByTestId('character-sbu')).toBeVisible()
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2)
+  expect(overflow).toBe(false)
 })
