@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { ArrowLeft, ArrowRight, Check, Play, Zap } from 'lucide-react'
 import { inputRouter } from '../../console/inputSingleton'
 import { CharacterPortrait } from './CharacterPortrait'
@@ -40,7 +40,6 @@ export default function CharacterSelect({ onStart, onExit, sound }: GameEntryPro
     })
     return () => { unsubscribe(); if (!confirmed.current) disposeKasiAudio() }
     // We only subscribe once; pick/confirm read the current selection by ref.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return (
     <section className="kasi-select" aria-label="Kasi Maze character selection" data-testid="kasi-character-select">
@@ -57,7 +56,7 @@ export default function CharacterSelect({ onStart, onExit, sound }: GameEntryPro
           data-testid={`character-${character.id}`}
           aria-pressed={id === character.id}
           onClick={() => pick(character.id)}
-          style={{ '--character-color': character.color } as React.CSSProperties}
+          style={{ '--character-color': character.color } as CSSProperties}
         >
           <div className="kasi-character-portrait"><CharacterPortrait id={character.id}/>
             <span className="kasi-character-number">0{index + 1}</span>
