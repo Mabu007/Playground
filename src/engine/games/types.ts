@@ -1,9 +1,20 @@
+import type { ComponentType } from 'react'
 import type { InputRouter, PlayerActionEvent } from '../input/InputRouter'
 
 export type GameStatus = 'playable' | 'coming-soon'
 export type GameInput = 'keyboard' | 'gamepad' | 'phone'
 export type GameCategory = 'featured' | 'quick' | 'multiplayer' | 'upcoming'
-
+export interface GameRunStats {
+  characterId?: string
+  district?: number
+  beatsCollected?: number
+  rivalsTagged?: number
+}
+export interface GameEntryProps {
+  onStart(characterId: string): void
+  onExit(): void
+  sound: { volume: number; muted: boolean; musicVolume?: number }
+}
 export interface GameInfo {
   id: string
   title: string
@@ -20,17 +31,23 @@ export interface GameInfo {
   instructions: string[]
   controls: { label: string; keys: string[] }[]
   load?: () => Promise<GameModule>
+  /** Optional game-owned entry screen, lazily loaded outside the console bundle. */
+  entry?: () => Promise<{ default: ComponentType<GameEntryProps> }>
 }
 export type GameEvent =
   | { type: 'ready' }
+  | { type: 'playing' }
   | { type: 'score'; score: number }
-  | { type: 'ended'; score: number; reason: 'game-over' | 'completed' }
+  | { type: 'stats'; stats: GameRunStats }
+  | { type: 'ended'; score: number; reason: 'game-over' | 'completed'; stats?: GameRunStats }
 export interface GameContext {
   parent: HTMLElement
   input: InputRouter
   playerId: string
   emit: (event: GameEvent) => void
-  sound: { volume: number; muted: boolean }
+  sound: { volume: number; muted: boolean; musicVolume?: number }
+  characterId?: string
+  reducedMotion?: boolean
 }
 export interface GameInstance {
   start(): void
