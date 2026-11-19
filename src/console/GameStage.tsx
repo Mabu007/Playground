@@ -19,6 +19,8 @@ export function GameStage() {
   const remainingMs = useConsole(s => s.remainingMs)
   const best = useConsole(s => s.data.progress.bestScores[activeId ?? ''] ?? 0)
   const data = useConsole(s => s.data)
+  // Capture the record at the beginning of each run; storage updates when a run ends.
+  const bestAtRunStart = useRef(best)
   const info = gameById(activeId ?? '')
   const stageRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef(new GameHost())
@@ -33,6 +35,7 @@ export function GameStage() {
   const restart = () => {
     if (!['PLAYING', 'PAUSED', 'SESSION_ENDED'].includes(useConsole.getState().view)) return
     useConsole.getState().restart()
+    bestAtRunStart.current = useConsole.getState().data.progress.bestScores[activeId ?? ''] ?? 0
     hostRef.current.restart()
   }
   const exit = () => {
@@ -134,7 +137,7 @@ export function GameStage() {
               <motion.div className="game-modal-screen" initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
                 <span className="eyebrow">{sessionManager.snapshot().endReason === 'timeout' ? 'SESSION COMPLETE' : 'GAME OVER'}</span>
                 <h2>THAT WAS A RUN.</h2><div className="final-score">{score.toLocaleString()} <small>PTS</small></div>
-                <p>{score > best ? 'New personal best. You earned that.' : 'Every run is another shot at your best.'}</p>
+                <p>{score > bestAtRunStart.current ? 'New personal best. You earned that.' : 'Every run is another shot at your best.'}</p>
                 <div className="modal-actions"><button className="button-primary" data-native-keys onClick={restart}><RotateCcw size={18}/> TRY AGAIN</button><button className="button-quiet" data-native-keys onClick={exit}><ArrowLeft size={18}/> ARCADE LIBRARY</button></div>
               </motion.div>
             )}
