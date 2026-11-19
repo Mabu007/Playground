@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
-import { ArrowDownRight, ArrowLeft, ArrowRight, Check, ChevronRight, CircleHelp, Clock3, Gamepad2, Headphones, Keyboard, Maximize2, Menu, Play, Settings2, Sparkles, Volume2, VolumeX, X, Zap } from 'lucide-react'
+import { ArrowDownRight, ArrowLeft, ArrowRight, Check, CircleHelp, Clock3, Gamepad2, Headphones, Keyboard, Maximize2, Menu, Play, Settings2, Sparkles, Volume2, VolumeX, X, Zap } from 'lucide-react'
 import { useConsole } from '../engine/core/consoleStore'
 import { games, gameById } from '../engine/games/registry'
 import type { GameInfo } from '../engine/games/types'
