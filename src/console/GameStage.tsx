@@ -146,17 +146,31 @@ export function GameStage() {
     return ()=>{cancelled=true}
   },[activeId,characterId,data.settings.volume,data.settings.musicVolume,data.settings.muted])
   useEffect(()=>{
+    let countdownSuspended=false
     const releaseFocus=()=>{
-      if(useConsole.getState().view==='PLAYING'){
+      const state=useConsole.getState()
+      if(state.view==='PLAYING'){
         hostRef.current.pause()
-        useConsole.getState().pause()
+        state.pause()
+      }else if(state.view==='LOADING'&&hostRef.current.isActive){
+        // Don't let an unfinished countdown become an unattended live run.
+        hostRef.current.pause()
+        countdownSuspended=true
       }
     }
-    const onVisibility=()=>{if(document.visibilityState==='hidden')releaseFocus()}
+    const restoreCountdown=()=>{
+      if(countdownSuspended&&useConsole.getState().view==='LOADING'){
+        countdownSuspended=false
+        hostRef.current.resume()
+      }
+    }
+    const onVisibility=()=>{if(document.visibilityState==='hidden')releaseFocus();else restoreCountdown()}
     window.addEventListener('blur',releaseFocus)
+    window.addEventListener('focus',restoreCountdown)
     document.addEventListener('visibilitychange',onVisibility)
     return ()=>{
       window.removeEventListener('blur',releaseFocus)
+      window.removeEventListener('focus',restoreCountdown)
       document.removeEventListener('visibilitychange',onVisibility)
     }
   },[])
