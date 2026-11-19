@@ -160,6 +160,12 @@ export function GameStage() {
       document.removeEventListener('visibilitychange',onVisibility)
     }
   },[])
+  useEffect(()=>{
+    return ()=>{
+      // Also catches exits during the asynchronous Phaser import, before a host exists.
+      if(activeId==='kasi-maze')void import('../games/kasi-maze/audio').then(({disposeKasiAudio})=>disposeKasiAudio())
+    }
+  },[activeId])
   useEffect(()=>{document.getElementById('game-root')?.focus({preventScroll:true})},[])
   const ended=view==='SESSION_ENDED'
   const paused=view==='PAUSED'
