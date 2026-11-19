@@ -2,7 +2,7 @@
 
 **Pick a game. Press play. Own the moment.**
 
-PLAYGROUND is a keyboard-first, cinematic arcade console for the browser. Phase 1 ships a modular console engine, an original playable Phaser 4 game (**Neon Dodge**), and previews of **Taxi Rush** and **Kasi Fighters**. It is deliberately local-first: no login, backend, paid tickets, or fake controller pairing.
+PLAYGROUND is a keyboard-first, cinematic arcade console for the browser. Phase 1 ships a modular console engine, two original playable Phaser 4 games (**Kasi Maze** and **Neon Dodge**), and previews of **Taxi Rush** and **Kasi Fighters**. It is deliberately local-first: no login, backend, paid tickets, or fake controller pairing.
 
 ## Requirements
 Node.js 22+ and npm 10+ (Node 20.19+ also works).
@@ -33,11 +33,12 @@ npm run dev
 | --- | --- |
 | Library | ←/→ select within a row, ↑/↓ switch rows; Enter or Space opens details |
 | Game details | Enter or Space plays; Escape goes back |
+| **Kasi Maze** | ←↑↓→ / WASD to navigate, collect beats, avoid rivals, grab golden power boosts |
 | Neon Dodge | ←/→ or A/D to move, Space activates a brief shield, P or Escape pauses |
 | In-game | R restarts, F requests fullscreen, Escape/P toggles pause |
 | General | F fullscreen (browser support required) |
 
-All interactions have visible buttons for mouse/touch browsing. Neon Dodge is **keyboard-only gameplay** in Phase 1. On mobile, use a keyboard to play.
+All interactions have visible buttons for mouse/touch browsing. Both arcade games require a keyboard in Phase 1. On mobile, use a keyboard to play.
 
 ## Console architecture
 
@@ -48,7 +49,7 @@ All interactions have visible buttons for mouse/touch browsing. Neon Dodge is **
 - `src/engine/core`: explicit console state transitions and lifecycle store.
 - `src/engine/display`: fullscreen and viewport behavior.
 - `src/engine/games/GameHost.ts`: lifecycle coordinator; owns exactly one loaded game instance.
-- `src/games/neon-dodge`: Phaser implementation and original synthesized SFX, loaded on demand.
+- `src/games/kasi-maze`: deterministic connected maze generation, tested enemy BFS routing, four rival personalities, collectibles, power boosts, three lives, progressive districts and original synthesized audio. Phaser module is lazy-loaded.\n- `src/games/neon-dodge`: original smaller survival game and SFX, loaded on demand.
 - `src/console`: React library, details, settings, overlays; no game-specific physics.
 - `src/engine/storage.ts`: versioned local preferences and achievements; not trusted commercial records.
 
@@ -73,3 +74,14 @@ Build a trusted backend that issues short-lived signed entitlements, centrally e
 Build and preview the production bundle. On the target computer, open DevTools Performance, record one minute of launcher navigation, 60 seconds of gameplay, then five start/exit cycles. Inspect long tasks, FPS, memory/heap snapshots, canvases and detached listeners. Compare a 1366×768 laptop with target projector hardware and repeat with reduced motion enabled. Avoid assuming a fixed FPS from a development machine.
 
 Artwork, game rules, and simple Web Audio effects are original to this project.
+
+
+## Kasi Maze: the new flagship
+
+**Kasi Maze** is an original maze-chase arcade game inspired by the classic genre. It does not use Pac-Man's characters, branding or proprietary art. Guide a mint-green runner through connected streets, collect luminous beats, evade four colored rival drones, collect golden power orbs to temporarily reverse the chase and clear the district. Completing a district advances to a new seeded maze with faster rivals and preserves score. Three lives per run; collected best scores persist locally.
+
+The browser game fills the desktop viewport (Phaser uses a 1600×900 reference stage with Scale.FIT). Fullscreen remains accessible through F or the fullscreen button; browser APIs may require user interaction. Phone widths display the correctly scaled game and a keyboard-required warning rather than misleading touch controls.
+
+Maze generation and pathfinding are pure TypeScript in `src/games/kasi-maze/maze.ts`, covered by `src/games/kasi-maze/maze.test.ts`. The Phaser scene is in `src/games/kasi-maze/index.ts`, loaded via the typed game registry. The launcher now has a seamless overlaid navigation header and a full-bleed featured hero.
+
+Use the GitHub Actions workflow or a Vercel build to validate dependency compatibility; browser-based smoke tests are in `e2e/console.spec.ts`.
