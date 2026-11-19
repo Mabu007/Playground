@@ -12,6 +12,7 @@ import { toggleFullscreen } from '../engine/display/fullscreen'
 import { formatTime } from './format'
 import { CharacterPortrait } from '../games/kasi-maze/CharacterPortrait'
 import { getKasiCharacter } from '../games/kasi-maze/characters'
+import '../games/kasi-maze/kasi.css'
 
 export function GameStage() {
   const activeId=useConsole(s=>s.activeGameId)
@@ -120,7 +121,6 @@ export function GameStage() {
     })
     return ()=>{disposed=true;off();host.destroy()}
     // Mount only when the actual game and character selection change, not on score updates.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[activeId,characterId,selecting])
 
   useEffect(()=>{
