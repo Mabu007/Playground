@@ -80,6 +80,11 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,.console-shell::-webkit-scrollba
   background:linear-gradient(180deg,#071321C5,transparent);border:0
 }
 .kasi-game-active .game-running-title{opacity:0}
+.kasi-top-actions{display:flex;align-items:center;gap:7px;pointer-events:auto}
+.kasi-top-actions .icon-button{width:37px;height:37px;flex:none;background:#0B1D28BA;border:1px solid #9AFFD035}
+.kasi-top-actions .icon-button:hover{background:#243C44}
+.kasi-selecting .kasi-top-actions{margin-left:auto}
+
 .kasi-game-active .icon-text-button{font-size:10px;background:#0B1D28BA;border:1px solid #9AFFD035;
   padding:10px 13px}
 .kasi-game-active .score-strip{
