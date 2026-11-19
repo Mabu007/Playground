@@ -182,15 +182,15 @@ function Launcher() {
     {mobileMenu && <nav className="mobile-nav" aria-label="Mobile navigation"><button onClick={() => goTo('top')}>Discover</button><button onClick={() => goTo('library')}>Games</button><button onClick={() => goTo('recent')}>My Plays</button><button onClick={() => { setMobileMenu(false); toggleSettings(true) }}>Settings</button></nav>}
     <main>
       <section className="hero" aria-label="Featured game">
-        <div className="hero-visual" aria-hidden="true"><Artwork id="neon-dodge" className="hero-svg"/><div className="hero-shade"/></div>
+        <div className="hero-visual" aria-hidden="true"><Artwork id="kasi-maze" className="hero-svg"/><div className="hero-shade"/></div>
         <div className="hero-overline"><span className="hero-overline-line"/> NOW PLAYING ON PLAYGROUND <span className="hero-overline-index">/ 001</span></div>
         <div className="hero-content">
-          <div className="hero-badge"><Zap size={14} fill="currentColor"/> THE FIRST PLAYGROUND ORIGINAL</div>
-          <h1>NEON<br/><em>DODGE<span>.</span></em></h1>
-          <p className="hero-tagline">CHASE THE HIGH. DODGE THE REST.</p>
-          <p className="hero-description">One ship. Endless danger. Pure arcade adrenaline.<br className="desktop-only"/> How long can you keep the light alive?</p>
-          <div className="hero-metadata"><Tag accent>AVAILABLE NOW</Tag><Tag>1 PLAYER</Tag><Tag>ARCADE / SURVIVAL</Tag><Tag>KEYBOARD</Tag></div>
-          <div className="hero-buttons"><button className="button-primary hero-play" onClick={() => launch('neon-dodge')}><Play size={20} fill="currentColor"/> PLAY NOW <ArrowRight size={19}/></button><button className="button-outline" onClick={() => openDetails('neon-dodge')}>GAME DETAILS <ChevronRight size={19}/></button></div>
+          <div className="hero-badge"><Zap size={14} fill="currentColor"/> THE NEW PLAYGROUND ORIGINAL</div>
+          <h1>KASI<br/><em>MAZE<span>.</span></em></h1>
+          <p className="hero-tagline">OWN THE STREETS. OUTRUN THE CREW.</p>
+          <p className="hero-description">One massive maze. Four rival crews. Three lives.<br className="desktop-only"/> Collect the beats, flip the chase and rule every district.</p>
+          <div className="hero-metadata"><Tag accent>AVAILABLE NOW</Tag><Tag>1 PLAYER</Tag><Tag>MAZE CHASE / ARCADE</Tag><Tag>KEYBOARD</Tag></div>
+          <div className="hero-buttons"><button className="button-primary hero-play" onClick={() => launch('kasi-maze')}><Play size={20} fill="currentColor"/> PLAY NOW <ArrowRight size={19}/></button><button className="button-outline" onClick={() => openDetails('kasi-maze')}>GAME DETAILS <ChevronRight size={19}/></button></div>
         </div>
         <div className="hero-side-note"><span>01 — 03</span><div className="hero-side-line"/><span>THE COLLECTION</span></div>
         <div className="hero-bottom"><span>NO DOWNLOADS. NO DRAMA. JUST PLAY.</span><button onClick={() => goTo('library')}>EXPLORE GAMES <ArrowDownRight size={16}/></button></div>
@@ -205,7 +205,7 @@ function Launcher() {
       <section className="recent-section" id="recent">
         <div className="recent-head"><div><span className="eyebrow"><Clock3 size={14}/> PICK UP WHERE YOU LEFT OFF</span><h2>YOUR ARCADE STORY.</h2></div><div className="session-total"><strong>{totalPlays.toString().padStart(2, '0')}</strong><span>TOTAL PLAYS</span></div></div>
         {recent.length > 0 ? <div className="recent-row">{recent.map(id => { const game = gameById(id); if (!game) return null; return <button className="recent-game" key={id} onClick={() => openDetails(id)}><span className="recent-thumb"><Artwork id={game.artwork.cover}/></span><span><strong>{game.title}</strong><small>BEST {useConsole.getState().data.progress.bestScores[id] ?? 0} PTS</small></span><ArrowRight size={18}/></button> })}</div> :
-          <div className="recent-empty"><span className="empty-gamepad"><Gamepad2 size={30}/></span><div><strong>No runs yet. That's about to change.</strong><p>Your recent games and best scores will live here after your first session.</p></div><button className="button-small" onClick={() => launch('neon-dodge')}>START PLAYING <ArrowRight size={15}/></button></div>}
+          <div className="recent-empty"><span className="empty-gamepad"><Gamepad2 size={30}/></span><div><strong>No runs yet. That's about to change.</strong><p>Your recent games and best scores will live here after your first session.</p></div><button className="button-small" onClick={() => launch('kasi-maze')}>START PLAYING <ArrowRight size={15}/></button></div>}
       </section>
 
       <section className="closing-banner"><div><span className="eyebrow">BUILT TO PLAY, ANYWHERE</span><h2>ONE SCREEN.<br/><em>INFINITE POSSIBILITIES.</em></h2><p>First your laptop. Next, the whole arcade.</p></div><div className="closing-art"><Gamepad2 size={132} strokeWidth={.7}/><span className="closing-ring"/></div></section>
