@@ -215,6 +215,94 @@ kbd{display:inline-block;font:700 10px/1.2 "DM Sans",sans-serif;letter-spacing:.
 .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 
 
+/* The playing viewport owns the screen, while UI controls remain keyboard accessible. */
+/* Gameplay owns the screen: no dashboard framing, no boxed canvas. */
+.game-screen{position:relative;width:100%;height:100svh;min-height:610px;overflow:hidden;background:#080c18}
+.game-topbar{
+  position:absolute;top:0;left:0;right:0;z-index:24;
+  height:92px;padding:0 clamp(20px,3.7vw,62px);
+  background:linear-gradient(180deg,#060d1ad9,transparent);
+  border:0;pointer-events:none
+}
+.game-topbar>button{pointer-events:auto}
+.game-topbar .icon-button{background:#14232bc2;border:1px solid #a7ffd05a;border-radius:50%;backdrop-filter:blur(13px)}
+.game-running-title{opacity:0;pointer-events:none}
+.icon-text-button{padding:10px 13px;background:#081a24b9;border:1px solid #7affc33d;border-radius:99px;backdrop-filter:blur(15px)}
+.icon-text-button:hover{background:#25463b;color:#c7ff9a}
+.play-content{position:relative;max-width:none;width:100%;height:100%;margin:0;padding:0}
+.game-viewport-shell{
+  position:absolute;inset:0;max-height:none;width:100%;height:100%;
+  aspect-ratio:auto;border:0;border-radius:0;box-shadow:none;background:#080c18
+}
+.phaser-mount{position:absolute;inset:0;height:100%;width:100%;overflow:hidden}
+.phaser-mount canvas{width:auto;max-width:100%;max-height:100%;object-fit:contain}
+.score-strip{
+  position:absolute;z-index:18;top:102px;left:auto;right:clamp(20px,3.2vw,56px);
+  display:flex;flex-direction:column;gap:13px;width:clamp(155px,16vw,235px);
+  margin:0;padding:0;pointer-events:none
+}
+.score-item{align-items:flex-end;text-align:right;gap:4px}
+.score-item>span{color:#a4c9be;font-size:10px;letter-spacing:.15em;text-shadow:0 2px 10px #020a16}
+.score-item strong{font-size:clamp(22px,2.8vw,42px);line-height:1;letter-spacing:-.04em;color:#eaffec;font-variant-numeric:tabular-nums;text-shadow:0 4px 20px #020a16}
+.score-item:first-child strong{color:#c2ff92}
+.game-footer{
+  position:absolute;z-index:17;left:clamp(20px,3.5vw,58px);right:clamp(20px,3.5vw,58px);bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:0;pointer-events:none
+}
+.game-controls-note{background:#06121cc9;border:1px solid #9fffd529;border-radius:100px;padding:10px 16px;backdrop-filter:blur(14px);gap:11px}
+.game-controls-note>span{color:#c6e1d9}
+.game-footer button{pointer-events:auto;border-radius:100px;backdrop-filter:blur(14px)}
+.game-footer .stage-control{background:#081a26cb;border:1px solid #b7ff8947}
+.game-footer .stage-control.strong{background:#baff83;color:#0b241e;border-color:#baff83}
+.game-modal-screen{background:radial-gradient(ellipse at center,#102a36e8,#050c18f2 70%);backdrop-filter:blur(14px)}
+.game-modal-screen .final-score{text-shadow:0 0 60px #aaff8b56}
+@media(max-width:1050px){
+ .game-controls-note{padding:8px 10px}
+ .game-controls-note>span{font-size:9px}
+ .game-footer{bottom:8px}
+ .score-strip{top:98px;right:15px;width:155px}
+ .score-item strong{font-size:25px}
+}
+@media(max-width:760px){
+ .main-header{height:70px;padding:0 20px}
+ .main-header::after{left:20px;right:20px}
+ .hero{height:720px;min-height:680px;max-height:none;padding-bottom:70px}
+ .hero-visual>.hero-svg{width:100%;height:75%;right:-9%;top:0;opacity:.97}
+ .hero-shade{background:linear-gradient(0deg,#080d15 3%,#080d15f5 18%,#080d15dd 47%,#07122222 88%),linear-gradient(90deg,#07101ba1,transparent 100%)}
+ .hero-overline{top:102px;left:22px}
+ .hero-content{padding:90px 22px 20px;max-width:100%}
+ .hero h1{font-size:clamp(72px,15vw,116px);line-height:.83}
+ .hero-tagline{font-size:clamp(12px,3.3vw,16px)}
+ .hero-description{font-size:13px;max-width:95%}
+ .hero-badge{font-size:8px}
+ .library-wrap{padding-top:60px}
+ .shelf-grid{gap:12px}
+ .game-screen{height:auto;min-height:100svh;overflow:visible}
+ .game-topbar{position:relative;height:65px;background:#0b1622;pointer-events:auto}
+ .play-content{height:auto;min-height:calc(100svh - 65px);padding:15px 10px 30px}
+ .score-strip{position:relative;top:auto;right:auto;left:auto;display:flex;flex-direction:row;justify-content:space-between;gap:7px;width:100%;margin:0 0 13px}
+ .score-item{align-items:flex-start;text-align:left}
+ .score-item.align-right{align-items:flex-end;text-align:right}
+ .score-item>span{font-size:8px;letter-spacing:0}
+ .score-item strong{font-size:clamp(18px,5vw,25px)}
+ .game-viewport-shell{position:relative;inset:auto;aspect-ratio:16/9;height:auto;width:100%;max-height:none;border:1px solid #37886a;border-radius:7px;box-shadow:0 0 35px #9effa619}
+ .phaser-mount{position:absolute;inset:0}
+ .game-footer{position:relative;bottom:auto;left:auto;right:auto;display:flex;flex-direction:column;align-items:stretch;margin-top:17px;pointer-events:auto}
+ .game-controls-note{border-radius:12px;gap:8px;flex-wrap:wrap}
+ .game-controls-note>span{font-size:9px}
+ .stage-buttons{justify-content:stretch;width:100%}
+ .stage-buttons .stage-control{flex:1}
+ .mobile-game-warning{display:block;font-size:12px;color:#f6cda0;line-height:1.5;margin-top:15px}
+ .game-modal-screen h2{font-size:clamp(18px,5vw,28px)}
+ .game-modal-screen .final-score{font-size:clamp(30px,8vw,57px)}
+ .game-modal-screen .eyebrow{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero-visual>.hero-svg,.game-card,.game-card .card-art{transition:none!important;animation:none!important}
+}
+
+
 /* PLAYGROUND cinema: one continuous visual field, not a dashboard. */
 :root{--arcade-bg:#080d15;--arcade-lime:#bcff83}
 html{scroll-padding-top:88px}
@@ -450,91 +538,4 @@ html{scroll-padding-top:88px}
 }
 @media(prefers-reduced-motion:reduce){.hero-visual>.hero-svg,.game-card,.game-card .card-art{transition:none!important;animation:none!important}}
 
-
-/* The playing viewport owns the screen, while UI controls remain keyboard accessible. */
-/* Gameplay owns the screen: no dashboard framing, no boxed canvas. */
-.game-screen{position:relative;width:100%;height:100svh;min-height:610px;overflow:hidden;background:#080c18}
-.game-topbar{
-  position:absolute;top:0;left:0;right:0;z-index:24;
-  height:92px;padding:0 clamp(20px,3.7vw,62px);
-  background:linear-gradient(180deg,#060d1ad9,transparent);
-  border:0;pointer-events:none
-}
-.game-topbar>button{pointer-events:auto}
-.game-topbar .icon-button{background:#14232bc2;border:1px solid #a7ffd05a;border-radius:50%;backdrop-filter:blur(13px)}
-.game-running-title{opacity:0;pointer-events:none}
-.icon-text-button{padding:10px 13px;background:#081a24b9;border:1px solid #7affc33d;border-radius:99px;backdrop-filter:blur(15px)}
-.icon-text-button:hover{background:#25463b;color:#c7ff9a}
-.play-content{position:relative;max-width:none;width:100%;height:100%;margin:0;padding:0}
-.game-viewport-shell{
-  position:absolute;inset:0;max-height:none;width:100%;height:100%;
-  aspect-ratio:auto;border:0;border-radius:0;box-shadow:none;background:#080c18
-}
-.phaser-mount{position:absolute;inset:0;height:100%;width:100%;overflow:hidden}
-.phaser-mount canvas{width:auto;max-width:100%;max-height:100%;object-fit:contain}
-.score-strip{
-  position:absolute;z-index:18;top:102px;left:auto;right:clamp(20px,3.2vw,56px);
-  display:flex;flex-direction:column;gap:13px;width:clamp(155px,16vw,235px);
-  margin:0;padding:0;pointer-events:none
-}
-.score-item{align-items:flex-end;text-align:right;gap:4px}
-.score-item>span{color:#a4c9be;font-size:10px;letter-spacing:.15em;text-shadow:0 2px 10px #020a16}
-.score-item strong{font-size:clamp(22px,2.8vw,42px);line-height:1;letter-spacing:-.04em;color:#eaffec;font-variant-numeric:tabular-nums;text-shadow:0 4px 20px #020a16}
-.score-item:first-child strong{color:#c2ff92}
-.game-footer{
-  position:absolute;z-index:17;left:clamp(20px,3.5vw,58px);right:clamp(20px,3.5vw,58px);bottom:12px;
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:0;pointer-events:none
-}
-.game-controls-note{background:#06121cc9;border:1px solid #9fffd529;border-radius:100px;padding:10px 16px;backdrop-filter:blur(14px);gap:11px}
-.game-controls-note>span{color:#c6e1d9}
-.game-footer button{pointer-events:auto;border-radius:100px;backdrop-filter:blur(14px)}
-.game-footer .stage-control{background:#081a26cb;border:1px solid #b7ff8947}
-.game-footer .stage-control.strong{background:#baff83;color:#0b241e;border-color:#baff83}
-.game-modal-screen{background:radial-gradient(ellipse at center,#102a36e8,#050c18f2 70%);backdrop-filter:blur(14px)}
-.game-modal-screen .final-score{text-shadow:0 0 60px #aaff8b56}
-@media(max-width:1050px){
- .game-controls-note{padding:8px 10px}
- .game-controls-note>span{font-size:9px}
- .game-footer{bottom:8px}
- .score-strip{top:98px;right:15px;width:155px}
- .score-item strong{font-size:25px}
-}
-@media(max-width:760px){
- .main-header{height:70px;padding:0 20px}
- .main-header::after{left:20px;right:20px}
- .hero{height:720px;min-height:680px;max-height:none;padding-bottom:70px}
- .hero-visual>.hero-svg{width:100%;height:75%;right:-9%;top:0;opacity:.97}
- .hero-shade{background:linear-gradient(0deg,#080d15 3%,#080d15f5 18%,#080d15dd 47%,#07122222 88%),linear-gradient(90deg,#07101ba1,transparent 100%)}
- .hero-overline{top:102px;left:22px}
- .hero-content{padding:90px 22px 20px;max-width:100%}
- .hero h1{font-size:clamp(72px,15vw,116px);line-height:.83}
- .hero-tagline{font-size:clamp(12px,3.3vw,16px)}
- .hero-description{font-size:13px;max-width:95%}
- .hero-badge{font-size:8px}
- .library-wrap{padding-top:60px}
- .shelf-grid{gap:12px}
- .game-screen{height:auto;min-height:100svh;overflow:visible}
- .game-topbar{position:relative;height:65px;background:#0b1622;pointer-events:auto}
- .play-content{height:auto;min-height:calc(100svh - 65px);padding:15px 10px 30px}
- .score-strip{position:relative;top:auto;right:auto;left:auto;display:flex;flex-direction:row;justify-content:space-between;gap:7px;width:100%;margin:0 0 13px}
- .score-item{align-items:flex-start;text-align:left}
- .score-item.align-right{align-items:flex-end;text-align:right}
- .score-item>span{font-size:8px;letter-spacing:0}
- .score-item strong{font-size:clamp(18px,5vw,25px)}
- .game-viewport-shell{position:relative;inset:auto;aspect-ratio:16/9;height:auto;width:100%;max-height:none;border:1px solid #37886a;border-radius:7px;box-shadow:0 0 35px #9effa619}
- .phaser-mount{position:absolute;inset:0}
- .game-footer{position:relative;bottom:auto;left:auto;right:auto;display:flex;flex-direction:column;align-items:stretch;margin-top:17px;pointer-events:auto}
- .game-controls-note{border-radius:12px;gap:8px;flex-wrap:wrap}
- .game-controls-note>span{font-size:9px}
- .stage-buttons{justify-content:stretch;width:100%}
- .stage-buttons .stage-control{flex:1}
- .mobile-game-warning{display:block;font-size:12px;color:#f6cda0;line-height:1.5;margin-top:15px}
- .game-modal-screen h2{font-size:clamp(18px,5vw,28px)}
- .game-modal-screen .final-score{font-size:clamp(30px,8vw,57px)}
- .game-modal-screen .eyebrow{font-size:8px}
-}
-@media(prefers-reduced-motion:reduce){
- .hero-visual>.hero-svg,.game-card,.game-card .card-art{transition:none!important;animation:none!important}
-}
 
