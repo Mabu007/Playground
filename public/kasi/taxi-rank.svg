@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 810" preserveAspectRatio="xMidYMid slice">
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071529"/><stop offset=".55" stop-color="#153447"/><stop offset="1" stop-color="#0A1228"/></linearGradient>
+ <radialGradient id="warm"><stop stop-color="#F9B86F" stop-opacity=".35"/><stop offset="1" stop-color="#F9B86F" stop-opacity="0"/></radialGradient>
+ <radialGradient id="mint"><stop stop-color="#4DF7CE" stop-opacity=".2"/><stop offset="1" stop-color="#4DF7CE" stop-opacity="0"/></radialGradient>
+ <pattern id="stars" width="79" height="73" patternUnits="userSpaceOnUse"><circle cx="13" cy="27" r="1.4" fill="#B9FFE8" opacity=".32"/><circle cx="61" cy="54" r=".9" fill="#E3F2FF" opacity=".26"/></pattern>
+</defs>
+<rect width="1440" height="810" fill="url(#sky)"/>
+<rect width="1440" height="810" fill="url(#stars)"/>
+<circle cx="1140" cy="105" r="310" fill="url(#warm)"/>
+<circle cx="255" cy="530" r="380" fill="url(#mint)"/>
+<circle cx="1160" cy="87" r="44" fill="#F9DC96" opacity=".77"/>
+<circle cx="1160" cy="87" r="60" fill="none" stroke="#F9DC96" stroke-opacity=".2" stroke-width="2"/>
+<!-- angular township roof silhouettes framing a clear center arena -->
+<path d="M0 248 50 218 107 244 156 205 214 228 258 194 302 220 340 216V810H0Z" fill="#122638" stroke="#76E9C8" stroke-width="3" stroke-opacity=".28"/>
+<path d="M1100 250 1150 215 1210 232 1259 187 1334 224 1391 194 1440 219V810H1100Z" fill="#122638" stroke="#FFCE9B" stroke-width="3" stroke-opacity=".26"/>
+<g fill="#1B3B4A"><path d="M0 322h48v-45h52v45h77v-84h64v84h90v488H0Z"/><path d="M1100 345h72v-67h78v67h40v-92h71v92h79v465h-340Z"/></g>
+<g fill="#7AFFD5" opacity=".16">
+ <rect x="44" y="343" width="26" height="39" rx="3"/><rect x="103" y="333" width="27" height="54" rx="3"/>
+ <rect x="1222" y="342" width="24" height="45" rx="2"/><rect x="1341" y="356" width="30" height="42" rx="3"/>
+</g>
+<path d="M0 690Q190 645 390 690T800 680T1440 684V810H0Z" fill="#081622" opacity=".8"/>
+<g font-family="sans-serif" font-weight="900" text-anchor="middle">
+ <g transform="translate(48 396) rotate(-5)"><rect width="202" height="54" rx="7" fill="#0C2636" stroke="#50EDD0" stroke-width="3"/><text x="101" y="35" font-size="23" letter-spacing="4" fill="#B9FFF3">KASI CAFE</text></g>
+ <g transform="translate(1210 430) rotate(4)"><rect width="180" height="53" rx="6" fill="#5E313E" stroke="#FFBC9F" stroke-width="3"/><text x="90" y="34" font-size="23" fill="#FFE0B1">SPAZA</text></g>
+</g>
+<g stroke="#85D9CB" stroke-opacity=".18" stroke-width="3"><path d="M60 0v265M1362 0v322M0 472h255M1160 510h280"/></g>
+<g fill="#FFDDA0"><circle cx="54" cy="251" r="6"/><circle cx="1381" cy="229" r="5"/></g>
+<g transform="translate(60 686)">
+ <path d="M14 44 34 14h142l43 31v54H0V50Z" fill="#FFCB7B" stroke="#172C36" stroke-width="7"/>
+ <path d="M46 25h111l28 22H29Z" fill="#1B4154"/>
+ <circle cx="48" cy="101" r="19" fill="#101B27" stroke="#6E8294" stroke-width="6"/>
+ <circle cx="174" cy="101" r="19" fill="#101B27" stroke="#6E8294" stroke-width="6"/>
+</g>
+<g opacity=".2" stroke="#C6FFE9" stroke-width="1"><path d="M320 0v810M1100 0v810M0 98h1440M0 759h1440"/></g>
+</svg>
