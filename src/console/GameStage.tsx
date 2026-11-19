@@ -145,6 +145,21 @@ export function GameStage() {
     })
     return ()=>{cancelled=true}
   },[activeId,characterId,data.settings.volume,data.settings.musicVolume,data.settings.muted])
+  useEffect(()=>{
+    const releaseFocus=()=>{
+      if(useConsole.getState().view==='PLAYING'){
+        hostRef.current.pause()
+        useConsole.getState().pause()
+      }
+    }
+    const onVisibility=()=>{if(document.visibilityState==='hidden')releaseFocus()}
+    window.addEventListener('blur',releaseFocus)
+    document.addEventListener('visibilitychange',onVisibility)
+    return ()=>{
+      window.removeEventListener('blur',releaseFocus)
+      document.removeEventListener('visibilitychange',onVisibility)
+    }
+  },[])
   useEffect(()=>{document.getElementById('game-root')?.focus({preventScroll:true})},[])
   const ended=view==='SESSION_ENDED'
   const paused=view==='PAUSED'
