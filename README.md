@@ -85,3 +85,31 @@ The browser game fills the desktop viewport (Phaser uses a 1600×900 reference s
 Maze generation and pathfinding are pure TypeScript in `src/games/kasi-maze/maze.ts`, covered by `src/games/kasi-maze/maze.test.ts`. The Phaser scene is in `src/games/kasi-maze/index.ts`, loaded via the typed game registry. The launcher now has a seamless overlaid navigation header and a full-bleed featured hero.
 
 Use the GitHub Actions workflow or a Vercel build to validate dependency compatibility; browser-based smoke tests are in `e2e/console.spec.ts`.
+
+## Kasi Maze — arcade experience
+
+The game is publicly named **Kasi Maze** throughout the console. Its feature branch contains:
+
+- **Choose a character:** Sbu, Zee, Katlego or Thami. Each has original SVG portrait artwork, in-game character markings and a small balanced gameplay advantage. Arrow keys and Enter also operate selection.
+- **Hand-authored township streets:** A connected 29 × 17 maze with Taxi Rank Nights, Neon Backstreets, Weekend Vibes and Final Block Party visual palettes. Later districts vary some side streets while retaining a reachable backbone.
+- **Original audio:** `src/games/kasi-maze/audio.ts` generates a 112 BPM groove and event-specific SFX using Web Audio oscillators and filtered noise. This is real interactive audio, not a downloadable/mastered studio recording. Audio initializes only on player interaction, stops on exit, and responds to mute/music settings.
+- **Game feedback:** Beat pickups, golden power orbs, frightened rivals, score bursts, combo tags, countdown, life-loss feedback and district celebrations.
+- **Full game loop:** Character selection → countdown → play → new district/life lost → game over → replay/change character/exit.
+- **Stats:** Best scores for each character, overall best, district reached, beats collected and tagged rivals saved locally.
+
+Artwork sources: React SVG portraits in `CharacterPortrait.tsx` and a scalable original township scene in `public/kasi/taxi-rank.svg`. Phaser renders the playable maze using crisp scalable vector geometry so collision boundaries stay visible. No copyrighted arcade character or music assets are used.
+
+### Character controls
+
+- Left/right arrows: choose character
+- Enter/Space: confirm character and enter the countdown
+- During gameplay: WASD or arrow keys to move; P/Escape to pause; R to restart; F to toggle fullscreen
+- Mouse/touch: character selection, menus and settings; the gameplay itself still requires a keyboard
+
+### Session integrity
+
+Timed sessions begin after the first Kasi Maze countdown rather than during character selection. Local demo sessions are not payments or secure arcade tickets.
+
+### Performance / future artwork
+
+The arena is designed for laptop/TV landscape and retains its collision grid regardless of graphics. The console hides prominent scrollbars while preserving scrolling. Character portraits and background artwork are SVG source and can later be replaced with final artist-supplied SVG assets. A production-recorded soundtrack, advanced animation atlases and full device-specific graphical benchmarks are additional future production work, not claimed complete.
