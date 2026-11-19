@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react'
-import { ArrowLeft, Maximize2, Pause, Play, RotateCcw, X, Keyboard, Trophy, Timer, UserRound } from 'lucide-react'
+import { ArrowLeft, Maximize2, Pause, Play, RotateCcw, X, Keyboard, Trophy, Timer, UserRound, Volume2, VolumeX } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useConsole } from '../engine/core/consoleStore'
 import { gameById } from '../engine/games/registry'
@@ -137,6 +137,14 @@ export function GameStage() {
     return ()=>clearInterval(interval)
   },[])
 
+  useEffect(()=>{
+    if(activeId!=='kasi-maze'||!characterId)return
+    let cancelled=false
+    void import('../games/kasi-maze/audio').then(({getKasiAudio})=>{
+      if(!cancelled)getKasiAudio(useConsole.getState().data.settings)
+    })
+    return ()=>{cancelled=true}
+  },[activeId,characterId,data.settings.volume,data.settings.musicVolume,data.settings.muted])
   useEffect(()=>{document.getElementById('game-root')?.focus({preventScroll:true})},[])
   const ended=view==='SESSION_ENDED'
   const paused=view==='PAUSED'
@@ -147,7 +155,11 @@ export function GameStage() {
     <header className="game-topbar">
       <button className="icon-text-button" data-native-keys onClick={exit} aria-label="Exit to library"><ArrowLeft size={18}/> <span>BACK TO PLAYGROUND</span></button>
       <div className="game-running-title"><span className="live-dot"/> {info?.title??'ARCADE'} <span className="subdued">/ ARCADE MODE</span></div>
-      <button className="icon-button" data-native-keys onClick={()=>void toggleFullscreen()} title="Toggle fullscreen" aria-label="Toggle fullscreen"><Maximize2 size={18}/></button>
+      <div className="kasi-top-actions">
+        {isKasi&&<button className="icon-button" data-native-keys onClick={()=>useConsole.getState().updateSettings({muted:!data.settings.muted})}
+          aria-label={data.settings.muted?'Unmute game audio':'Mute game audio'} title={data.settings.muted?'Unmute':'Mute'}>{data.settings.muted?<VolumeX size={18}/>:<Volume2 size={18}/>}</button>}
+        <button className="icon-button" data-native-keys onClick={()=>void toggleFullscreen()} title="Toggle fullscreen" aria-label="Toggle fullscreen"><Maximize2 size={18}/></button>
+      </div>
     </header>
     <div className="play-content">
       {!selecting&&<div className="score-strip">
