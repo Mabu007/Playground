@@ -25,6 +25,29 @@ describe('game host lifecycle', () => {
     expect(starts).toBe(2)
     expect(destroys).toBe(2)
   })
+  it('cleans up when a game start throws and permits a subsequent launch', async () => {
+    const host = new GameHost()
+    let destroys = 0
+    let shouldFail = true
+    const game: GameInfo = {
+      ...metadata,
+      load: async () => ({
+        mount: async () => ({
+          start: () => { if (shouldFail) throw new Error('simulated start failure') },
+          pause() {}, resume() {}, restart() {},
+          destroy() { destroys++ },
+        }),
+      }),
+    }
+    await expect(host.launch(game, ctx)).rejects.toThrow('simulated start failure')
+    expect(host.activeCount).toBe(0)
+    expect(host.isLoading).toBe(false)
+    expect(destroys).toBe(1)
+    shouldFail = false
+    await expect(host.launch(game, ctx)).resolves.toBe(true)
+    host.destroy()
+    expect(destroys).toBe(2)
+  })
   it('invalidates an in-flight lazy load on exit', async () => {
     let resolve!: (value: { mount: () => Promise<GameInstance> }) => void
     const game: GameInfo = { ...metadata, load: () => new Promise(r => { resolve = r }) }
