@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
 
-test('library shows real and upcoming titles and works on keyboard', async ({ page }) => {
+test('Kasi Maze is the flagship; upcoming games cannot launch', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('NEON')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('KASI')
+  await expect(page.locator('[data-game-card="kasi-maze"]')).toBeVisible()
   await expect(page.locator('[data-game-card="neon-dodge"]')).toBeVisible()
   await expect(page.locator('[data-game-card="taxi-rush"]')).toBeVisible()
   await expect(page.locator('[data-game-card="kasi-fighters"]')).toBeVisible()
@@ -11,31 +12,51 @@ test('library shows real and upcoming titles and works on keyboard', async ({ pa
   await expect(page.locator('[data-game-card="taxi-rush"]')).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(page.getByRole('dialog', { name: /taxi rush game details/i })).toBeVisible()
-  await expect(page.getByText('COMING SOON', { exact: true }).first()).toBeVisible()
   await expect(page.getByRole('dialog', { name: /taxi rush/i }).getByRole('button', { name: /PLAY NOW/i })).toHaveCount(0)
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog', { name: /taxi rush/i })).toHaveCount(0)
 })
 
-test('Phaser gameplay pause restart exit and persistence', async ({ page }) => {
+test('Kasi Maze launches real Phaser gameplay with scoring, pause, restart and exit', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /play now/i }).first().click()
   await expect(page.getByTestId('game-screen')).toBeVisible()
   await expect(page.locator('.phaser-mount canvas')).toHaveCount(1, { timeout: 25_000 })
-  await expect(page.getByTestId('score')).not.toHaveText('0', { timeout: 10_000 })
+  // The short ready phase is intentional; movement collects actual map objects.
+  await page.waitForTimeout(2500)
+  let scored = false
+  for (const direction of ['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown']) {
+    await page.keyboard.down(direction)
+    await page.waitForTimeout(650)
+    await page.keyboard.up(direction)
+    if (Number((await page.getByTestId('score').innerText()).replace(/,/g, '')) > 0) { scored = true; break }
+  }
+  expect(scored).toBe(true)
   await page.keyboard.press('p')
   await expect(page.getByText('TAKE A BREATHER.')).toBeVisible()
   await page.getByRole('button', { name: 'RESUME' }).click()
   await expect(page.getByText('TAKE A BREATHER.')).toHaveCount(0)
   await page.getByRole('button', { name: 'Restart', exact: true }).click()
+  await expect(page.locator('.phaser-mount canvas')).toHaveCount(1)
   await page.getByRole('button', { name: /back to library/i }).first().click()
-  await expect(page.locator('[data-game-card="neon-dodge"]')).toBeVisible()
+  await expect(page.locator('.phaser-mount canvas')).toHaveCount(0)
   await page.reload()
   await expect(page.getByText('YOUR ARCADE STORY.')).toBeVisible()
   await expect(page.getByText('TOTAL PLAYS')).toBeVisible()
+  await expect(page.getByText('KASI MAZE').first()).toBeVisible()
 })
 
-test('settings and mobile layout', async ({ page }) => {
+test('repeat launch and exit does not leave canvases running', async ({ page }) => {
+  await page.goto('/')
+  for (let cycle = 0; cycle < 3; cycle++) {
+    await page.getByRole('button', { name: /play now/i }).first().click()
+    await expect(page.locator('.phaser-mount canvas')).toHaveCount(1, { timeout: 25_000 })
+    await page.getByRole('button', { name: /back to library/i }).first().click()
+    await expect(page.locator('canvas')).toHaveCount(0)
+  }
+})
+
+test('settings persist and 390px layout avoids horizontal overflow', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Open settings' }).click()
   await expect(page.getByRole('dialog', { name: 'Console settings' })).toBeVisible()
