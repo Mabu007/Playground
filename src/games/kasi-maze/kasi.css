@@ -1,0 +1,196 @@
+/* PLAYGROUND: invisible scrollbars, retained mouse/touch/keyboard scroll functionality. */
+html,body,.console-shell{scrollbar-width:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,.console-shell::-webkit-scrollbar{width:0;height:0;display:none}
+.console-shell .shelf-grid,.details-dialog,.settings-dialog,.dialog-backdrop,.kasi-select{scrollbar-width:none!important;-ms-overflow-style:none}
+.console-shell .shelf-grid::-webkit-scrollbar,.details-dialog::-webkit-scrollbar,.settings-dialog::-webkit-scrollbar,.dialog-backdrop::-webkit-scrollbar,.kasi-select::-webkit-scrollbar{width:0;height:0;display:none}
+
+/* Entire art-directed selection screen is game-owned, not part of the console chrome. */
+.game-screen.kasi-selecting{height:100svh;min-height:570px;overflow:hidden;background:#071424}
+.kasi-selecting .play-content,.kasi-selecting .game-viewport-shell{height:100%;max-height:none}
+.kasi-selecting .game-footer,.kasi-selecting .score-strip{display:none}
+.kasi-select{
+  position:absolute;inset:0;z-index:4;overflow-x:hidden;overflow-y:auto;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px clamp(20px,5vw,76px) 18px;color:#F3FFF6;isolation:isolate;
+  background:linear-gradient(180deg,#06101FEE 0%,#081626CA 42%,#070F1FF5 100%),url('/kasi/taxi-rank.svg') center/cover no-repeat;
+}
+.kasi-select-glow{position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 60% 85% at 50% 44%,#85FFA81B,transparent 70%),
+    radial-gradient(ellipse 40% 50% at 87% 18%,#FBBB7513,transparent 80%)}
+.kasi-select-title{width:100%;max-width:1190px;text-align:left;margin:0 0 12px;flex:none}
+.kasi-eyebrow{display:flex;align-items:center;gap:10px;color:#BBFF95;letter-spacing:.20em;font-size:10px;font-weight:900}
+.kasi-eyebrow span{height:6px;width:6px;background:#BBFF95;border-radius:50%;box-shadow:0 0 12px #BBFF95}
+.kasi-select-title h1{
+  margin:7px 0 6px;font:800 clamp(32px,4.5vw,67px)/.92 'Space Grotesk',sans-serif;
+  letter-spacing:-.065em;text-wrap:balance
+}
+.kasi-select-title h1 em{font-style:normal;color:#B9FF83}
+.kasi-select-title p{color:#C2D3D3;font-size:clamp(11px,1.1vw,15px);font-weight:500;line-height:1.4}
+.kasi-character-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(9px,1.35vw,20px);
+  width:100%;max-width:1190px;margin:0 auto;flex:none
+}
+.kasi-character-card{
+  position:relative;display:flex;flex-direction:column;min-width:0;color:#F3F8F7;
+  padding:0;text-align:left;overflow:hidden;border:1px solid #9ED6C21C;
+  border-radius:11px;background:#102536D6;isolation:isolate;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease
+}
+.kasi-character-card:hover,.kasi-character-card:focus-visible{
+  transform:translateY(-5px);border-color:var(--character-color);box-shadow:0 13px 43px #0009
+}
+.kasi-character-card.selected{
+  border-color:var(--character-color);box-shadow:0 0 0 1px var(--character-color),0 8px 31px #080D16A9
+}
+.kasi-character-card.selected:after{content:'';position:absolute;inset:0;border-radius:10px;pointer-events:none;
+  box-shadow:inset 0 0 45px #FFFFFF09}
+.kasi-character-portrait{position:relative;width:100%;height:clamp(150px,30svh,295px);
+  overflow:hidden;background:#122337}
+.kasi-character-portrait svg{display:block;width:100%;height:100%;object-fit:cover}
+.kasi-character-number{position:absolute;left:12px;top:11px;color:#F3FFF4B8;font:800 10px monospace;letter-spacing:2px}
+.kasi-character-tick{
+  position:absolute;right:11px;top:11px;display:grid;place-items:center;
+  width:29px;height:29px;border-radius:50%;background:var(--character-color);color:#0A1A23
+}
+.kasi-character-info{display:flex;flex-direction:column;gap:4px;padding:12px 15px 14px;
+  min-height:90px;background:#071521C9}
+.kasi-character-info strong{font:800 clamp(20px,2vw,28px)/1 'Space Grotesk',sans-serif;letter-spacing:-.03em}
+.kasi-character-info>span{font-size:9px;color:#9FB3B5;letter-spacing:.12em;font-weight:800}
+.kasi-character-info small{margin-top:5px;color:var(--character-color);display:flex;align-items:center;gap:6px;
+  font-size:10px;letter-spacing:.03em;font-weight:850}
+.kasi-select-bottom{width:100%;max-width:1190px;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding-top:14px}
+.kasi-selected-trait{max-width:520px}
+.kasi-selected-trait>span{font-size:9px;letter-spacing:.19em;font-weight:900;color:#8FAAA9}
+.kasi-selected-trait strong{display:inline;margin-left:11px;font:800 17px 'Space Grotesk',sans-serif}
+.kasi-selected-trait p{color:#B5C6C2;margin-top:5px;font-size:12px;line-height:1.5}
+.kasi-select-actions{display:flex;gap:10px;align-items:center}
+.kasi-back-btn,.kasi-start-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  border-radius:6px;min-height:48px;padding:0 20px;font-size:11px;font-weight:900;letter-spacing:.08em;white-space:nowrap}
+.kasi-back-btn{color:#EEF7F2;background:#F4FFFF15}
+.kasi-start-btn{color:#102416;background:#BFFF8A;box-shadow:0 10px 32px #A8FF8B29}
+.kasi-start-btn:hover{background:#D8FFAF;transform:translateY(-2px)}
+.kasi-select-help{margin-top:12px;text-align:center;font-size:9px;letter-spacing:.13em;font-weight:800;color:#88A4A3}
+.kasi-select-help span{margin:0 8px;color:#C0FF91}
+
+/* Maze fills the available frame, while large side HUD cards are replaced by a short top strip. */
+.game-screen.kasi-game-active{height:100svh;min-height:530px;overflow:hidden;background:#061322}
+.kasi-game-active .game-topbar{
+  height:69px;top:0;z-index:30;padding:0 clamp(15px,2vw,36px);
+  background:linear-gradient(180deg,#071321C5,transparent);border:0
+}
+.kasi-game-active .game-running-title{opacity:0}
+.kasi-game-active .icon-text-button{font-size:10px;background:#0B1D28BA;border:1px solid #9AFFD035;
+  padding:10px 13px}
+.kasi-game-active .score-strip{
+  position:absolute;z-index:21;top:12px;left:clamp(220px,22vw,330px);right:clamp(80px,9vw,140px);
+  width:auto;display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+  gap:clamp(10px,1.8vw,27px);padding:0;margin:0;pointer-events:none;white-space:nowrap
+}
+.kasi-game-active .score-item{align-items:flex-start;text-align:left;gap:3px;flex:none}
+.kasi-game-active .score-item>span{font-size:9px;color:#A8C8BD;letter-spacing:.11em}
+.kasi-game-active .score-item strong{font-size:clamp(21px,2vw,29px);color:#F3FFF5;line-height:1.12}
+.kasi-game-active .score-item:nth-child(2) strong{color:#C1FF93}
+.kasi-game-active .score-item.align-right{align-items:flex-end}
+.kasi-game-active .score-item.align-right strong{font-size:clamp(20px,2vw,28px)}
+.kasi-player-hud{display:flex;align-items:center;gap:10px;min-width:120px}
+.kasi-hud-portrait{display:block;flex:none;width:44px;height:45px;overflow:hidden;
+  border:1px solid #B6FF837A;border-radius:8px}
+.kasi-hud-portrait svg{display:block;width:100%;height:100%;object-fit:cover}
+.kasi-player-hud>span:last-child{display:flex;flex-direction:column;gap:4px}
+.kasi-player-hud small{font-size:8px;letter-spacing:.1em;color:#A5BFB6;font-weight:800}
+.kasi-player-hud strong{font:800 18px 'Space Grotesk',sans-serif;letter-spacing:-.02em}
+.kasi-game-active .game-viewport-shell{border:0;box-shadow:none;aspect-ratio:auto;max-height:none;height:100%;border-radius:0}
+.kasi-game-active .game-footer{
+  z-index:19;position:absolute;bottom:8px;left:clamp(15px,2.2vw,34px);right:clamp(15px,2.2vw,34px);
+  gap:10px;margin:0;pointer-events:none
+}
+.kasi-game-active .game-controls-note{
+  padding:7px 10px;gap:6px;border:1px solid #B0FF9533;border-radius:999px;
+  background:#071625C8;backdrop-filter:blur(11px)
+}
+.kasi-game-active .game-controls-note>span{font-size:9px;letter-spacing:.02em}
+.kasi-game-active .game-controls-note kbd{font-size:9px;padding:3px 5px;min-width:19px;text-align:center}
+.kasi-game-active .stage-buttons{gap:7px}
+.kasi-game-active .stage-control{border-radius:999px;padding:9px 13px;font-size:11px}
+.kasi-game-active .game-modal-screen{background:radial-gradient(ellipse at center,#123341F0,#06101FEF 78%);backdrop-filter:blur(17px)}
+.kasi-game-active .game-modal-screen .button-primary,.kasi-game-active .game-modal-screen .button-quiet{border-radius:6px}
+.kasi-results .result-portrait{display:block;width:73px;height:76px;overflow:hidden;border:2px solid #B9FF91;
+  border-radius:10px;box-shadow:0 0 22px #B9FF9133;margin:10px 0 2px}
+.kasi-results .result-portrait svg{width:100%;height:100%;display:block}
+.kasi-results h2{font-size:clamp(29px,3.5vw,49px);margin:5px 0}
+.kasi-results .final-score{font-size:clamp(43px,6vw,88px)}
+.kasi-run-recap{display:flex;gap:clamp(22px,4vw,60px);align-items:center;margin:4px 0 9px}
+.kasi-run-recap span{display:flex;align-items:center;flex-direction:column;gap:5px}
+.kasi-run-recap strong{color:#D6FFE8;font:800 22px 'Space Grotesk',sans-serif}
+.kasi-run-recap small{color:#A0C0BB;font-size:9px;letter-spacing:.1em;font-weight:800}
+@media(max-height:725px) and (min-width:761px){
+  .kasi-select{padding-top:67px}
+  .kasi-select-title h1{font-size:clamp(31px,3.2vw,48px)}
+  .kasi-character-portrait{height:clamp(145px,28svh,225px)}
+  .kasi-character-info{padding:9px 11px 11px;min-height:73px}
+  .kasi-character-info strong{font-size:21px}
+  .kasi-select-bottom{padding-top:8px}
+  .kasi-select-help{margin-top:7px}
+  .kasi-game-active .game-footer{bottom:5px}
+}
+@media(max-width:1000px) and (min-width:761px){
+  .kasi-game-active .score-strip{left:200px;right:90px;gap:9px}
+  .kasi-player-hud{min-width:94px;gap:6px}
+  .kasi-hud-portrait{width:35px;height:39px}
+  .kasi-game-active .score-item>span{font-size:8px}
+  .kasi-game-active .score-item strong{font-size:20px}
+}
+@media(max-width:760px){
+  .game-screen.kasi-game-active{height:auto;min-height:100svh;overflow:visible}
+  .kasi-selecting .game-topbar{position:absolute;top:0}
+  .kasi-select{justify-content:flex-start;padding:78px 14px 20px}
+  .kasi-select-title h1{font-size:clamp(29px,7vw,45px);margin-top:9px}
+  .kasi-select-title p{font-size:11px}
+  .kasi-character-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .kasi-character-portrait{height:clamp(140px,23svh,205px)}
+  .kasi-character-info{min-height:76px;padding:9px 11px}
+  .kasi-character-info strong{font-size:21px}
+  .kasi-character-info>span{font-size:8px}
+  .kasi-character-info small{font-size:9px}
+  .kasi-select-bottom{padding-top:15px;flex-wrap:wrap}
+  .kasi-select-actions{justify-content:flex-end;width:100%}
+  .kasi-selected-trait strong{font-size:17px}
+  .kasi-select-help{font-size:8px;line-height:1.6}
+  .kasi-game-active .game-topbar{position:relative;height:64px}
+  .kasi-game-active .game-topbar .icon-text-button span{display:inline}
+  .kasi-game-active .play-content{padding:9px 7px 20px;height:auto}
+  .kasi-game-active .score-strip{position:relative;top:auto;right:auto;left:auto;
+    display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:4px;width:100%;margin:0 0 10px}
+  .kasi-player-hud{grid-column:1/-1;gap:8px;margin-bottom:5px}
+  .kasi-hud-portrait{width:32px;height:33px}
+  .kasi-game-active .score-item{min-width:0}
+  .kasi-game-active .score-item strong{font-size:clamp(15px,5vw,21px)}
+  .kasi-game-active .score-item>span{font-size:7px;letter-spacing:0}
+  .kasi-game-active .score-item.align-right{align-items:flex-end;text-align:right}
+  .kasi-game-active .game-viewport-shell{position:relative;aspect-ratio:16/9;height:auto}
+  .kasi-game-active .game-footer{position:relative;bottom:auto;left:auto;right:auto;flex-direction:column;
+    align-items:stretch;margin-top:11px;pointer-events:auto}
+  .kasi-game-active .game-controls-note{border-radius:11px;gap:7px}
+  .kasi-game-active .stage-buttons{width:100%}
+  .kasi-game-active .stage-control{flex:1;justify-content:center}
+  .kasi-game-active .mobile-game-warning{display:block}
+  .kasi-game-active .game-modal-screen h2{font-size:clamp(19px,5vw,30px)}
+  .kasi-results .result-portrait{display:none}
+  .kasi-results .final-score{font-size:32px}
+  .kasi-run-recap{gap:10px}
+  .kasi-run-recap strong{font-size:14px}
+  .kasi-run-recap small{font-size:7px}
+  .kasi-results .modal-actions{gap:5px}
+  .kasi-results .modal-actions button{min-height:36px;padding:7px 9px;font-size:8px}
+}
+@media(max-width:420px){
+  .kasi-select-title h1{font-size:31px}
+  .kasi-character-portrait{height:145px}
+  .kasi-select-bottom{gap:9px}
+  .kasi-start-btn,.kasi-back-btn{min-height:43px;padding:0 12px;font-size:9px}
+  .kasi-game-active .score-item:nth-child(3){display:block}
+}
+@media(prefers-reduced-motion:reduce){
+  .kasi-character-card,.kasi-start-btn{transition:none!important;transform:none!important}
+}
