@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { ArrowDownRight, ArrowLeft, ArrowRight, Check, ChevronRight, CircleHelp, Clock3, Gamepad2, Headphones, Keyboard, Maximize2, Menu, Play, Settings2, Sparkles, Volume2, VolumeX, X, Zap } from 'lucide-react'
 import { useConsole } from '../engine/core/consoleStore'
@@ -16,6 +16,50 @@ function Brand({ compact = false }: { compact?: boolean }) {
 
 function Tag({ children, accent = false }: { children: ReactNode; accent?: boolean }) {
   return <span className={`metadata-tag ${accent ? 'tag-accent' : ''}`}>{children}</span>
+}
+
+/**
+ * Trap Tab inside overlays and return focus to the opener when leaving.
+ * Window keyboard actions are still routed by the normal input adapter.
+ */
+function useDialogFocus(ref: RefObject<HTMLDivElement | null>, onEscape: () => void) {
+  const escapeRef = useRef(onEscape)
+  escapeRef.current = onEscape
+  useEffect(() => {
+    const panel = ref.current
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    if (!panel) return
+    panel.focus({ preventScroll: true })
+    const oldOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        event.stopPropagation()
+        escapeRef.current()
+        return
+      }
+      if (event.key !== 'Tab') return
+      const focusable = [...panel.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]')]
+        .filter(element => element.getClientRects().length > 0)
+      if (!focusable.length) { event.preventDefault(); panel.focus(); return }
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === panel)) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown, true)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, true)
+      document.body.style.overflow = oldOverflow
+      if (opener?.isConnected) requestAnimationFrame(() => opener.focus({ preventScroll: true }))
+    }
+  }, [ref])
 }
 
 function GameCard({ game, row, column }: { game: GameInfo; row: number; column: number }) {
@@ -63,7 +107,7 @@ function GameDetails({ game }: { game: GameInfo }) {
   const launch = useConsole(s => s.launch)
   const best = useConsole(s => s.data.progress.bestScores[game.id])
   const dialog = useRef<HTMLDivElement>(null)
-  useEffect(() => { dialog.current?.focus() }, [game.id])
+  useDialogFocus(dialog, close)
   return (
     <motion.div className="dialog-backdrop" role="presentation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={event => { if (event.target === event.currentTarget) close() }}>
       <motion.div ref={dialog} role="dialog" aria-modal="true" aria-label={`${game.title} game details`} tabIndex={-1} className="details-dialog" initial={{ opacity: 0, y: 28, scale: .97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: .97 }} transition={{ duration: .23 }}>
@@ -91,7 +135,7 @@ function SettingsDialog() {
   const update = useConsole(s => s.updateSettings)
   const close = useConsole(s => s.toggleSettings)
   const dialog = useRef<HTMLDivElement>(null)
-  useEffect(() => { dialog.current?.focus() }, [])
+  useDialogFocus(dialog, () => close(false))
   return (
     <motion.div className="dialog-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={e => { if (e.target === e.currentTarget) close(false) }}>
       <motion.div className="settings-dialog" role="dialog" aria-modal="true" aria-label="Console settings" tabIndex={-1} ref={dialog} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
@@ -124,6 +168,13 @@ function Launcher() {
   const toggleSettings = useConsole(s => s.toggleSettings)
   const [mobileMenu, setMobileMenu] = useState(false)
   const [navSection, setNavSection] = useState('DISCOVER')
+  const [headerScrolled, setHeaderScrolled] = useState(false)
+  useEffect(() => {
+    const update = () => setHeaderScrolled(window.scrollY > 36)
+    window.addEventListener('scroll', update, { passive: true })
+    update()
+    return () => window.removeEventListener('scroll', update)
+  }, [])
 
   function goTo(id: string) {
     setMobileMenu(false)
@@ -170,7 +221,7 @@ function Launcher() {
   }, [])
 
   return <div className={`console-shell ${useConsole.getState().data.settings.reducedMotion ? "reduce-motion" : ""}`} id="top">
-    <header className="main-header">
+    <header className={`main-header ${headerScrolled ? "header-scrolled" : ""}`}>
       <button className="brand-button" onClick={() => goTo('top')} aria-label="Go to the top of Playground"><Brand/></button>
       <nav className="desktop-nav" aria-label="Main navigation">
         <button className={navSection === 'DISCOVER' ? 'active' : ''} onClick={() => goTo('top')}>Discover</button>
@@ -183,23 +234,27 @@ function Launcher() {
     <main>
       <section className="hero" aria-label="Featured game">
         <div className="hero-visual" aria-hidden="true"><Artwork id="kasi-maze" className="hero-svg"/><div className="hero-shade"/></div>
-        <div className="hero-overline"><span className="hero-overline-line"/> NOW PLAYING ON PLAYGROUND <span className="hero-overline-index">/ 001</span></div>
         <div className="hero-content">
-          <div className="hero-badge"><Zap size={14} fill="currentColor"/> THE NEW PLAYGROUND ORIGINAL</div>
+          <div className="hero-overline"><span className="status-dot" aria-hidden="true"/> A PLAYGROUND ORIGINAL <span className="hero-overline-index">/ 01</span></div>
           <h1>KASI<br/><em>MAZE<span>.</span></em></h1>
           <p className="hero-tagline">OWN THE STREETS. OUTRUN THE CREW.</p>
-          <p className="hero-description">One massive maze. Four rival crews. Three lives.<br className="desktop-only"/> Collect the beats, flip the chase and rule every district.</p>
-          <div className="hero-metadata"><Tag accent>AVAILABLE NOW</Tag><Tag>1 PLAYER</Tag><Tag>MAZE CHASE / ARCADE</Tag><Tag>KEYBOARD</Tag></div>
-          <div className="hero-buttons"><button className="button-primary hero-play" onClick={() => launch('kasi-maze')}><Play size={20} fill="currentColor"/> PLAY NOW <ArrowRight size={19}/></button><button className="button-outline" onClick={() => openDetails('kasi-maze')}>GAME DETAILS <ChevronRight size={19}/></button></div>
+          <p className="hero-description">One maze. Four rival crews. Three lives.<span className="hero-description-break"> Collect the beats, turn the tables, own the district.</span></p>
+          <div className="hero-buttons">
+            <button className="button-primary hero-play" data-testid="hero-play" onClick={() => launch('kasi-maze')}><Play size={19} fill="currentColor"/> PLAY NOW</button>
+            <button className="button-outline" onClick={() => openDetails('kasi-maze')}><CircleHelp size={18}/> MORE INFO</button>
+          </div>
+          <div className="hero-metadata" aria-label="Game information">
+            <span className="hero-available"><span className="status-dot" aria-hidden="true"/> Playable now</span>
+            <span>1 player</span><span>Maze chase</span><span>Keyboard</span>
+          </div>
         </div>
-        <div className="hero-side-note"><span>01 — 03</span><div className="hero-side-line"/><span>THE COLLECTION</span></div>
-        <div className="hero-bottom"><span>NO DOWNLOADS. NO DRAMA. JUST PLAY.</span><button onClick={() => goTo('library')}>EXPLORE GAMES <ArrowDownRight size={16}/></button></div>
+        <button className="hero-scroll" onClick={() => goTo('library')}>EXPLORE THE GAMES <ArrowDownRight size={17}/></button>
       </section>
 
       <div className="library-wrap" id="library">
-        <div className="section-intro"><span className="eyebrow"><span className="status-dot"/> THE GAME VAULT</span><h2>YOUR NEXT OBSESSION<br/><em>STARTS HERE.</em></h2><p>Big arcade energy. Zero loading screens between you and your next favorite thing.</p></div>
-        <Shelf heading="Press play" subheading="Your next run is just one click away." list={libraryRows[0]} row={0} id="play-now"/>
-        <Shelf heading="On the horizon" subheading="Built different. Coming to your arcade soon." list={libraryRows[1]} row={1} id="coming-soon"/>
+        <div className="section-intro"><span className="eyebrow">THE PLAYGROUND COLLECTION</span><h2>PICK YOUR <em>NEXT GAME.</em></h2><p>No downloads, no setup. Just choose a game and play.</p></div>
+        <Shelf heading="Ready to play" subheading="Jump right in" list={libraryRows[0]} row={0} id="play-now"/>
+        <Shelf heading="Coming to the arcade" subheading="A preview of what’s next" list={libraryRows[1]} row={1} id="coming-soon"/>
       </div>
 
       <section className="recent-section" id="recent">
