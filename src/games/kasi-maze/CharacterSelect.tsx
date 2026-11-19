@@ -13,21 +13,25 @@ export default function CharacterSelect({ onStart, onExit, sound }: GameEntryPro
   const current = useRef(id)
   current.current = id
   const pick = (next: KasiCharacterId) => {
+    current.current = next
     setId(next)
-    getKasiAudio(sound).unlock()
-    getKasiAudio(sound).mode('menu')
-    getKasiAudio(sound).effect('navigate')
+    const audio = getKasiAudio(sound)
+    audio.unlock()
+    audio.mode('menu')
+    audio.effect('navigate')
   }
   const confirm = () => {
     if (confirmed.current) return
     confirmed.current = true
     rememberKasiCharacter(current.current)
-    getKasiAudio(sound).unlock()
-    getKasiAudio(sound).effect('confirm')
-    getKasiAudio(sound).mode('game')
+    const audio = getKasiAudio(sound)
+    audio.unlock()
+    audio.effect('confirm')
+    audio.mode('game')
     onStart(current.current)
   }
   const leave = () => { disposeKasiAudio(); onExit() }
+  useEffect(() => { getKasiAudio(sound).configure(sound) }, [sound.volume, sound.muted, sound.musicVolume])
   useEffect(() => {
     const unsubscribe = inputRouter.subscribe(event => {
       if (event.playerId !== 'player-1' || event.phase !== 'pressed' || event.repeated) return
