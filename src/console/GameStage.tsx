@@ -76,7 +76,6 @@ export function GameStage() {
     })
     return () => { disposed = true; off(); host.destroy() }
     // The running game is intentionally mounted once per active ID.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId])
 
   useEffect(() => {
