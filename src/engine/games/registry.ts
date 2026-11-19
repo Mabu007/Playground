@@ -1,0 +1,52 @@
+import type { GameInfo } from './types'
+
+export const games: GameInfo[] = [
+  {
+    id: 'neon-dodge',
+    title: 'NEON DODGE',
+    eyebrow: '01 / THE ORIGINAL',
+    tagline: 'MOVE FAST. STAY ALIVE.',
+    description: 'The city never sleeps. Neither do the obstacles. Weave through the chaos, grab energy cores and see how long you can survive.',
+    genre: 'Survival arcade',
+    tags: ['Arcade', 'Reflexes', 'High score'],
+    players: { min: 1, max: 1 },
+    inputMethods: ['keyboard'],
+    category: ['featured', 'quick'],
+    status: 'playable',
+    artwork: { cover: 'neon-dodge', hero: 'neon-dodge' },
+    instructions: ['Move with ← → or A / D', 'Press SPACE to activate your rechargeable shield', 'Collect lime energy cores, avoid red hazards', 'Survive longer to climb your personal leaderboard'],
+    load: () => import('../../games/neon-dodge'),
+  },
+  {
+    id: 'taxi-rush',
+    title: 'TAXI RUSH',
+    eyebrow: '02 / COMING SOON',
+    tagline: 'NO TIME FOR TRAFFIC.',
+    description: 'A wild, South African-inspired rush-hour adventure. Dodge traffic, collect fares and find your own way across the city.',
+    genre: 'Driving arcade',
+    tags: ['Driving', 'Reflexes', 'Kasi'],
+    players: { min: 1, max: 1 },
+    inputMethods: ['keyboard'],
+    category: ['upcoming'],
+    status: 'coming-soon',
+    artwork: { cover: 'taxi-rush', hero: 'taxi-rush' },
+    instructions: ['Coming soon — gameplay is not available yet.'],
+  },
+  {
+    id: 'kasi-fighters',
+    title: 'KASI FIGHTERS',
+    eyebrow: '03 / COMING SOON',
+    tagline: 'THE BLOCK IS YOUR ARENA.',
+    description: 'Original neighborhood heroes, larger-than-life rivalries and fast local-versus battles. Pick your fighter and own the block.',
+    genre: 'Fighting arcade',
+    tags: ['Fighting', 'Versus', 'Local multiplayer'],
+    players: { min: 2, max: 2 },
+    inputMethods: ['keyboard', 'gamepad'],
+    category: ['upcoming', 'multiplayer'],
+    status: 'coming-soon',
+    artwork: { cover: 'kasi-fighters', hero: 'kasi-fighters' },
+    instructions: ['Coming soon — local multiplayer is planned, not yet available.'],
+  },
+]
+export const gameById = (id: string) => games.find((game) => game.id === id)
+export const playableGames = () => games.filter((game) => game.status === 'playable' && !!game.load)
