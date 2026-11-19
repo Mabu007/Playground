@@ -102,23 +102,6 @@ export function routeTowards(maze: Maze, from: Point, target: Point, avoid?: Dir
     }
   }
   // BFS from each legal first step; a small grid keeps this cheap and deterministic.
-  const distance = (origin: Point): number => {
-    const queue = [origin]
-    const seen = new Set([keyOf(origin)])
-    let head = 0
-    while (head < queue.length) {
-      const p = queue[head++]
-      if (targets.has(keyOf(p))) return seenDepth.get(keyOf(p)) ?? 0
-      for (const option of neighbors(maze, p)) {
-        const k = keyOf(option.point)
-        if (seen.has(k)) continue
-        seen.add(k)
-        seenDepth.set(k, (seenDepth.get(keyOf(p)) ?? 0) + 1)
-        queue.push(option.point)
-      }
-    }
-    return Infinity
-  }
   let best: Direction = available[0].direction
   let bestDistance = Infinity
   for (const option of available) {
