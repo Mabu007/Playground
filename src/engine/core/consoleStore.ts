@@ -48,7 +48,7 @@ export const useConsole = create<ConsoleState>((set, get) => {
     playerManager.assignSession('player-1', null)
   }
   return {
-    view: 'ATTRACT', selectedId: 'neon-dodge', activeGameId: null, score: 0, elapsedMs: 0,
+    view: 'ATTRACT', selectedId: 'kasi-maze', activeGameId: null, score: 0, elapsedMs: 0,
     remainingMs: null, error: null, settingsOpen: false, data: initial,
     browse: () => { if (get().view === 'ATTRACT') move('BROWSING') },
     selectGame: (id) => { if (gameById(id)) set({ selectedId: id }) },
