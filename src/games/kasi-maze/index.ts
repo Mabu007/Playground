@@ -251,6 +251,7 @@ class KasiMazeScene extends Phaser.Scene {
     this.totalBeats=0;this.rivalsTagged=0;this.combo=0;this.powered=0
     this.protectedFor=2.4;this.countdown=2.8;this.running=true;this.sessionStarted=false
     this.maze=createMaze(this.district);this.drawBoard();this.resetPositions()
+    this.audioModePowered=false
     this.audio.unlock();this.audio.mode('game');this.audio.effect('countdown')
     this.context.emit({type:'score',score:0})
     this.context.emit({type:'stats',stats:this.stats()})
@@ -428,6 +429,7 @@ class KasiMazeScene extends Phaser.Scene {
       this.banner.setScale(current>0?1+Math.sin(this.countdown*Math.PI)*.04:1.1)
       if(current>0&&current!==previous)this.audio.effect('countdown')
       if(this.countdown===0){
+        this.audio.mode('game')
         this.audio.effect('go')
         if(!this.sessionStarted){this.sessionStarted=true;this.context.emit({type:'playing'})}
       }
