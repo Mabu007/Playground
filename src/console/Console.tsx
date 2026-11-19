@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { ArrowDownRight, ArrowLeft, ArrowRight, Check, CircleHelp, Clock3, Gamepad2, Headphones, Keyboard, Maximize2, Menu, Play, Settings2, Sparkles, Volume2, VolumeX, X, Zap } from 'lucide-react'
 import { useConsole } from '../engine/core/consoleStore'
@@ -9,6 +9,7 @@ import { inputRouter } from './inputSingleton'
 import { toggleFullscreen, isFullscreenSupported } from '../engine/display/fullscreen'
 import { Artwork } from './Artwork'
 import { GameStage } from './GameStage'
+import { useDialogFocus } from './useDialogFocus'
 
 function Brand({ compact = false }: { compact?: boolean }) {
   return <div className="brand" aria-label="Playground"><span className="brand-symbol"><i/><i/><i/><i/></span>{!compact && <span>PLAY<span>GROUND</span><b className="brand-dot">.</b></span>}</div>
@@ -16,50 +17,6 @@ function Brand({ compact = false }: { compact?: boolean }) {
 
 function Tag({ children, accent = false }: { children: ReactNode; accent?: boolean }) {
   return <span className={`metadata-tag ${accent ? 'tag-accent' : ''}`}>{children}</span>
-}
-
-/**
- * Trap Tab inside overlays and return focus to the opener when leaving.
- * Window keyboard actions are still routed by the normal input adapter.
- */
-function useDialogFocus(ref: RefObject<HTMLDivElement | null>, onEscape: () => void) {
-  const escapeRef = useRef(onEscape)
-  escapeRef.current = onEscape
-  useEffect(() => {
-    const panel = ref.current
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    if (!panel) return
-    panel.focus({ preventScroll: true })
-    const oldOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        event.stopPropagation()
-        escapeRef.current()
-        return
-      }
-      if (event.key !== 'Tab') return
-      const focusable = [...panel.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]')]
-        .filter(element => element.getClientRects().length > 0)
-      if (!focusable.length) { event.preventDefault(); panel.focus(); return }
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (event.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
-        event.preventDefault()
-        last.focus()
-      } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === panel)) {
-        event.preventDefault()
-        first.focus()
-      }
-    }
-    document.addEventListener('keydown', onKeyDown, true)
-    return () => {
-      document.removeEventListener('keydown', onKeyDown, true)
-      document.body.style.overflow = oldOverflow
-      if (opener?.isConnected) requestAnimationFrame(() => opener.focus({ preventScroll: true }))
-    }
-  }, [ref])
 }
 
 function GameCard({ game, row, column }: { game: GameInfo; row: number; column: number }) {
@@ -253,7 +210,7 @@ function Launcher() {
           </div>
           <div className="hero-metadata" aria-label="Game information">
             <span className="hero-available"><span className="status-dot" aria-hidden="true"/> Playable now</span>
-            <span>1 player</span><span>Maze chase</span><span>Keyboard</span>
+            <span>1 player</span><span>Maze chase</span><span>Keyboard / touch</span>
           </div>
         </div>
         <button className="hero-scroll" onClick={() => goTo('library')}>EXPLORE THE GAMES <ArrowDownRight size={17}/></button>

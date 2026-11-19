@@ -12,7 +12,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,.console-shell::-webkit-scrollba
   position:absolute;inset:0;z-index:4;overflow-x:hidden;overflow-y:auto;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:80px clamp(20px,5vw,76px) 18px;color:#F3FFF6;isolation:isolate;
-  background:linear-gradient(180deg,#06101FEE 0%,#081626CA 42%,#070F1FF5 100%),url('/kasi/taxi-rank.svg') center/cover no-repeat;
+  background:linear-gradient(180deg,#06101FEE 0%,#081626CA 42%,#070F1FF5 100%),url('/kasi/night-market.svg') center/cover no-repeat;
 }
 .kasi-select-glow{position:absolute;inset:0;z-index:-1;pointer-events:none;
   background:radial-gradient(ellipse 60% 85% at 50% 44%,#85FFA81B,transparent 70%),
@@ -198,4 +198,109 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,.console-shell::-webkit-scrollba
 }
 @media(prefers-reduced-motion:reduce){
   .kasi-character-card,.kasi-start-btn{transition:none!important;transform:none!important}
+}
+
+/* The playfield sits between the chrome, with the skyline visible in the gutters. */
+.game-screen.kasi-game-active:not(.kasi-selecting){
+  min-height:0;
+  height:100dvh;
+  background:#110e1a;
+}
+.kasi-game-active:not(.kasi-selecting) .game-viewport-shell{
+  inset:58px 0 45px;
+  height:auto;
+  background:linear-gradient(180deg,#140e20ab,#170f1b91 65%,#120d18ec),
+    url('/kasi/night-market.svg') center center/cover no-repeat;
+}
+.kasi-game-active:not(.kasi-selecting) .game-topbar{
+  height:58px;
+  background:#140f1b;
+}
+.kasi-game-active .game-running-title{display:none}
+.kasi-brand{
+  color:#f9e4c5;
+  font:900 clamp(16px,1.6vw,25px)/1 'Space Grotesk',sans-serif;
+  letter-spacing:-.07em;
+  white-space:nowrap;
+  margin-right:auto;
+}
+.kasi-brand em{color:#ffaa74;font-style:normal}
+.kasi-game-active .score-strip{
+  top:8px;left:50%;right:auto;transform:translateX(-50%);
+  gap:clamp(15px,3vw,54px);
+}
+.kasi-game-active .score-item>span{color:#c9aab5}
+.kasi-game-active .score-item strong{color:#fff0d6}
+.kasi-player-hud{min-width:0}
+.kasi-hud-portrait{width:35px;height:39px;border-color:#d9ad87}
+.kasi-game-active .game-footer{bottom:5px;justify-content:space-between}
+.kasi-game-active .game-controls-note{background:none;border:0;padding:5px 0;backdrop-filter:none}
+.kasi-game-active .game-controls-note>span{color:#c5aeb8}
+.kasi-game-active .stage-control{min-height:32px;padding:5px 12px;font-size:10px}
+.kasi-game-active .game-modal-screen{
+  background:radial-gradient(ellipse at center,#36213be8,#120d1aeb 76%);
+  backdrop-filter:blur(7px);
+}
+.kasi-touch-pad{display:none}
+@media(max-width:920px){
+  .kasi-game-active:not(.kasi-selecting) .icon-text-button span{display:none}
+}
+@media(max-width:760px) and (orientation:portrait){
+  .kasi-game-active:not(.kasi-selecting) .play-content{
+    height:calc(100% - 58px);min-height:0;padding:10px 8px max(10px,env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;
+  }
+  .kasi-game-active .score-strip{
+    top:auto;left:auto;transform:none;
+    display:flex;justify-content:space-between;gap:8px;padding:0 5px;margin:0 0 10px;
+  }
+  .kasi-player-hud{margin:0}
+  .kasi-player-hud strong{font-size:13px}
+  .kasi-game-active .score-item:nth-child(2){display:flex}
+  .kasi-game-active:not(.kasi-selecting) .game-viewport-shell{
+    inset:auto;aspect-ratio:1195/755;flex:none;overflow:visible;
+  }
+  .kasi-game-active .game-footer{order:3;margin:8px 6px 0;bottom:auto}
+  .kasi-game-active .game-controls-note{display:none}
+  .kasi-game-active .stage-buttons .stage-control{min-height:42px}
+  .kasi-touch-pad{
+    display:grid;grid-template-columns:repeat(3,54px);gap:5px;justify-content:center;
+    margin:clamp(10px,3dvh,26px) 0 0;touch-action:none;user-select:none;
+  }
+  .kasi-touch-pad button{
+    width:54px;height:54px;display:grid;place-items:center;border-radius:12px;
+    color:#ffdfb6;background:#301e36;border:1px solid #846077;touch-action:none;
+  }
+  .kasi-touch-pad button:active{background:#ffb782;color:#211328}
+  .kasi-touch-pad button:disabled{opacity:.5}
+  .kasi-touch-pad [data-direction='up']{grid-column:2}
+  .kasi-touch-pad [data-direction='left']{grid-column:1}
+}
+@media(max-width:760px) and (orientation:landscape){
+  .kasi-game-active:not(.kasi-selecting) .game-topbar{position:absolute;height:48px}
+  .kasi-game-active:not(.kasi-selecting) .play-content{height:100%;min-height:0;padding:0}
+  .kasi-game-active:not(.kasi-selecting) .game-viewport-shell{position:absolute;inset:48px 0 38px;aspect-ratio:auto}
+  .kasi-game-active .score-strip{position:absolute;display:flex;gap:14px}
+  .kasi-game-active .game-footer{position:absolute;flex-direction:row}
+  .kasi-game-active .stage-buttons{width:auto}
+}
+.kasi-game-active .score-strip{z-index:31}
+.kasi-board-status{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap;
+}
+@media(max-width:760px) and (orientation:portrait){
+  .kasi-board-status{
+    position:static;width:auto;height:auto;margin:0 6px 6px;padding:0;
+    clip-path:none;white-space:normal;display:flex;justify-content:space-between;gap:6px;
+    color:#efca9d;font-size:9px;font-weight:800;
+  }
+  .kasi-board-status [aria-label]{color:#c6ff8c}
+}
+@media(max-width:760px) and (orientation:portrait){
+  .game-screen.kasi-game-active:not(.kasi-selecting){
+    background:linear-gradient(#110e1afc,#110e1ada 48%,#110e1ab8),
+      url('/kasi/night-market.svg') center bottom/auto 100% no-repeat;
+  }
+  .kasi-touch-pad{margin-top:clamp(12px,calc((100dvh - 480px) * .12),48px)}
 }

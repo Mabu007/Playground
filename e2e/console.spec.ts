@@ -27,7 +27,7 @@ test('Kasi Maze launches real Phaser gameplay with scoring, pause, restart and e
   await page.getByTestId('start-kasi').click()
   await expect(page.locator('.phaser-mount canvas')).toHaveCount(1, { timeout: 25_000 })
   // The short ready phase is intentional; movement collects actual map objects.
-  await page.waitForTimeout(2500)
+  await expect(page.getByRole('button',{name:'Pause',exact:true})).toBeEnabled()
   let scored = false
   for (const direction of ['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown']) {
     await page.keyboard.down(direction)
@@ -38,11 +38,11 @@ test('Kasi Maze launches real Phaser gameplay with scoring, pause, restart and e
   expect(scored).toBe(true)
   await page.keyboard.press('p')
   await expect(page.getByText('TAKE A BREATHER.')).toBeVisible()
-  await page.getByRole('button', { name: 'RESUME' }).click()
+  await page.getByRole('button', { name: 'RESUME', exact: true }).click()
   await expect(page.getByText('TAKE A BREATHER.')).toHaveCount(0)
   await page.getByRole('button', { name: 'Restart', exact: true }).click()
   await expect(page.locator('.phaser-mount canvas')).toHaveCount(1)
-  await page.getByRole('button', { name: /back to library/i }).first().click()
+  await page.getByRole('button', { name: 'Exit to library' }).click()
   await expect(page.locator('.phaser-mount canvas')).toHaveCount(0)
   await page.reload()
   await expect(page.getByText('YOUR ARCADE STORY.')).toBeVisible()
@@ -56,7 +56,7 @@ test('repeat launch and exit does not leave canvases running', async ({ page }) 
     await page.getByRole('button', { name: /play now/i }).first().click()
     await page.getByTestId('start-kasi').click()
     await expect(page.locator('.phaser-mount canvas')).toHaveCount(1, { timeout: 25_000 })
-    await page.getByRole('button', { name: /back to library/i }).first().click()
+    await page.getByRole('button', { name: 'Exit to library' }).click()
     await expect(page.locator('canvas')).toHaveCount(0)
   }
 })

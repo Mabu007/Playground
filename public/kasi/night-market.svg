@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#181326"/><stop offset=".55" stop-color="#573040"/><stop offset="1" stop-color="#e48754"/></linearGradient>
+    <linearGradient id="ground" x2="0" y2="1"><stop stop-color="#302234"/><stop offset="1" stop-color="#140d1c"/></linearGradient>
+    <linearGradient id="shop" x2="0" y2="1"><stop stop-color="#67415b"/><stop offset="1" stop-color="#332235"/></linearGradient>
+    <pattern id="stars" width="137" height="103" patternUnits="userSpaceOnUse"><circle cx="29" cy="20" r="1.4" fill="#ffe7b7"/><circle cx="95" cy="54" r=".8" fill="#ffe7b7"/><circle cx="58" cy="82" r=".9" fill="#ffe7b7"/></pattern>
+    <pattern id="roof" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M1 0v10" stroke="#ffcb9e" stroke-opacity=".23" stroke-width="3"/></pattern>
+    <radialGradient id="lamp"><stop stop-color="#ffd386" stop-opacity=".69"/><stop offset="1" stop-color="#ffc27b" stop-opacity="0"/></radialGradient>
+    <g id="windows" fill="#ffbd80"><rect width="14" height="21" rx="1"/><rect x="23" width="14" height="21" rx="1"/><path d="M0 11h37M7 0v21m23-21v21" stroke="#533947" stroke-width="2"/></g>
+    <g id="taxi">
+      <ellipse cx="106" cy="96" rx="109" ry="14" fill="#100d1c" opacity=".78"/>
+      <path d="M6 49L29 15h130l31 31 19 13v33H1V60Z" fill="#ffc68e" stroke="#241a2a" stroke-width="5"/>
+      <path d="M35 24h31v24H19zm38 0h33v24H73zm40 0h42l23 24h-65z" fill="#32374c"/>
+      <path d="M7 64h202M9 72h192" stroke="#a3545b" stroke-width="5"/>
+      <path d="M104 48v40m53-39v37" stroke="#866068" stroke-width="3"/>
+      <circle cx="43" cy="91" r="16" fill="#221b30" stroke="#a38a8a" stroke-width="5"/>
+      <circle cx="167" cy="91" r="16" fill="#221b30" stroke="#a38a8a" stroke-width="5"/>
+      <path d="M9 55h11m170 5h14" stroke="#fff0ad" stroke-width="5"/>
+    </g>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect width="1600" height="370" fill="url(#stars)" opacity=".42"/>
+  <circle cx="1307" cy="118" r="104" fill="url(#lamp)"/><circle cx="1307" cy="118" r="48" fill="#ffc58c"/>
+  <path d="M0 323q180-140 345-35t351-10q185-90 313-16 150-52 301 20l290-43v322H0z" fill="#553248"/>
+  <g fill="#38263d">
+    <path d="M112 382q56-98 19-206h92q-38 108 18 206zM229 382q56-98 19-206h92q-38 108 18 206z"/>
+    <path d="M0 359h49v-53h47v29h49v-35h124v56h104v-77h49v41h66v-58h44v97h54v100H0z"/>
+    <path d="M1100 373h77v-84h56v37h77v-66h35v55h67v-62h38v52h65v-36h45v70h40v120h-500z"/>
+  </g>
+  <g fill="#efae7c" opacity=".6"><path d="M171 290l22-54 24 22-21 27zm102-3l21-53 22 21-16 32z"/><rect x="404" y="293" width="7" height="10"/><rect x="1248" y="341" width="8" height="10"/><rect x="1423" y="290" width="7" height="10"/></g>
+  <path d="M0 517l519-92h614l467 92v383H0z" fill="url(#ground)"/>
+  <path d="M0 746l513-188m1087 188l-497-188M192 900l461-342m755 342l-448-342" stroke="#e3a27d" stroke-opacity=".24" stroke-width="4"/>
+  <path d="M0 391l117-62 156 65v239H0zM1600 408l-117-59-169 64v241h286z" fill="url(#shop)" stroke="#c48a81" stroke-width="3"/>
+  <path d="M0 391l117-62 156 65-11 27-149-53L0 417zm1600 17l-117-59-169 64 13 24 152-56 121 53z" fill="#9b5b66"/>
+  <path d="M0 391l117-62 156 65-11 27-149-53L0 417zm1600 17l-117-59-169 64 13 24 152-56 121 53z" fill="url(#roof)"/>
+  <rect x="30" y="434" width="211" height="49" rx="5" fill="#332743" stroke="#cf967b" stroke-width="3"/>
+  <rect x="1354" y="448" width="218" height="51" rx="5" fill="#4d293c" stroke="#cd947f" stroke-width="3"/>
+  <g fill="#ffe2ad" font-size="23" text-anchor="middle" font-weight="900" font-family="sans-serif" letter-spacing="4">
+    <text x="135" y="466">KASI CAFE</text><text x="1464" y="483">SPAZA</text>
+  </g>
+  <path d="M14 500h238l-13 23H5zm1336 20h250v22h-232z" fill="#e38b78"/>
+  <path d="M14 501h238l-13 23H5zm1336 20h250v22h-232z" fill="url(#roof)"/>
+  <use href="#windows" x="26" y="544"/><use href="#windows" x="198" y="544"/>
+  <use href="#windows" x="1380" y="562"/><use href="#windows" x="1530" y="562"/>
+  <path d="M84 625v-74h91v74m1260 16v-77h83v77" fill="#21192c" stroke="#94717f" stroke-width="5"/>
+  <path d="M17 389q244 97 465 8m659 11q213 80 444-12" fill="none" stroke="#201528" stroke-width="4"/>
+  <g fill="#ffcc86"><circle cx="75" cy="408" r="5"/><circle cx="134" cy="423" r="5"/><circle cx="213" cy="435" r="5"/><circle cx="1444" cy="436" r="5"/><circle cx="1505" cy="419" r="5"/></g>
+  <g fill="url(#lamp)"><circle cx="21" cy="548" r="114"/><circle cx="1556" cy="558" r="138"/></g>
+  <use href="#taxi" transform="translate(22 738) scale(1.17)"/><use href="#taxi" transform="translate(1357 700) scale(1.09)"/>
+</svg>

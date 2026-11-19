@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="64" viewBox="0 0 512 64">
+  <defs>
+    <g id="shadow"><ellipse cx="32" cy="55" rx="24" ry="7" fill="#080914" opacity=".8"/></g>
+    <path id="body" d="M12 55l2-13 9-7h18l9 7 2 13-9 3-4-4H25l-5 4z"/>
+    <path id="face" d="M18 20q14-12 28 0v13l-4 7-10 5-10-5-4-7z"/>
+    <path id="eyes" d="M24 28h4v4h-4zm12 0h4v4h-4z" fill="#231320"/>
+    <path id="smile" d="M28 36h9l-3 3h-4z" fill="#ffe5b1"/>
+  </defs>
+  <g stroke="#151224" stroke-width="2.3" stroke-linejoin="round">
+    <g>
+      <use href="#shadow" stroke="none"/><use href="#body" fill="#bafb72"/><path d="M30 42l-2 12m14-13 4 10M16 47l7-5" stroke="#428766" fill="none"/>
+      <use href="#face" fill="#ab6248"/><path d="M16 25l-2-7q9-15 26-9l8 8 5 6-29 2z" fill="#2a5148"/><path d="M19 20l23-1 11 4q-6 3-36 3z" fill="#d2ff89"/>
+      <use href="#eyes" stroke="none"/><use href="#smile" stroke="none"/>
+    </g>
+    <g transform="translate(64)">
+      <use href="#shadow" stroke="none"/><use href="#body" fill="#ff77a7"/><path d="M20 45l12 10 12-10" fill="none" stroke="#ffdb8b" stroke-width="4"/>
+      <use href="#face" fill="#8f4c3f"/><path d="M17 27l-5-7 4-11 7 1 7-6 7 4 9-1 7 10-4 13-3-10-24 2z" fill="#342337"/>
+      <path d="M16 23l6-9 25 1 4 8-19-3z" fill="#ffc66b"/><use href="#eyes" stroke="none"/><use href="#smile" stroke="none"/>
+      <circle cx="15" cy="35" r="3" fill="#fbc16c"/><circle cx="49" cy="35" r="3" fill="#fbc16c"/>
+    </g>
+    <g transform="translate(128)">
+      <use href="#shadow" stroke="none"/><use href="#body" fill="#69dce9"/><path d="M19 46l13 9 14-9" fill="none" stroke="#c9fbef" stroke-width="3"/>
+      <path d="M12 32l4-16 9-9h14l9 9 4 16-8 8H20z" fill="#6473b5"/><use href="#face" fill="#ba7658"/>
+      <path d="M17 25l3-7 10-4 12 4 5 7-15-4z" fill="#96eff1"/><path d="M20 28h10l2 2 2-2h10l-1 6h-8l-3-3-3 3h-8z" fill="#1a2c42"/>
+      <use href="#smile" stroke="none"/>
+    </g>
+    <g transform="translate(192)">
+      <use href="#shadow" stroke="none"/><use href="#body" fill="#ffc473"/><path d="M18 47h28m-25 5h22" stroke="#887044"/>
+      <use href="#face" fill="#9a5844"/><path d="M13 29V17L22 8h21l9 10v11h-6V20l-6-6H23l-5 6v9z" fill="#caec86"/>
+      <path d="M18 24l5-9h18l6 10-14-2z" fill="#ffe4ad"/><path d="M10 28h9v12h-9zm35 0h9v12h-9z" fill="#8de4a3"/>
+      <use href="#eyes" stroke="none"/><use href="#smile" stroke="none"/>
+    </g>
+    <g transform="translate(256)">
+      <use href="#shadow" stroke="none"/><use href="#body" fill="#e45472"/><path d="M16 51l8-9 8 5 8-5 8 9" fill="none" stroke="#ffc8aa"/>
+      <use href="#face" fill="#905542"/><path d="M14 21l6-12 20-2 11 7-5 12-14-7-15 7z" fill="#f35e73"/>
+      <path d="M19 31l11-4-1 5h-9zm26 0-11-4 1 5h9z" fill="#fff1cc" stroke="none"/><path d="M25 37l7-3 7 3-3 6h-8z" fill="#432239"/>
+    </g>
+    <g transform="translate(320)">
+      <use href="#shadow" stroke="none"/><use href="#body" fill="#4cb8d3"/><path d="M20 45l5 8m17-8-5 8" stroke="#a5e7df" fill="none"/>
+      <path d="M13 33l1-15 9-11 15-1 11 9 2 20-11 10H23z" fill="#263851"/><use href="#face" fill="#b17552"/>
+      <path d="M19 27l5-13 10-4 11 10 2 8-13-7z" fill="#74e3e6"/><path d="M20 30h10v4H20zm14 0h10v4H34z" fill="#d9ffdc"/>
+    </g>
+    <g transform="translate(384)">
+      <use href="#shadow" stroke="none"/><use href="#body" fill="#f6a55f"/><path d="M17 51l10-7 5 9 5-9 10 7" fill="none" stroke="#873f3a"/>
+      <use href="#face" fill="#9c5b41"/><path d="M20 19l1-10 21 1 2 9 11 5-8 5H17l-8-5z" fill="#ffb16b"/>
+      <path d="M15 24l17-3 17 3" fill="none" stroke="#a8444f"/><use href="#eyes" stroke="none"/><path d="M25 37h13" stroke="#ffe7b7"/>
+    </g>
+    <g transform="translate(448)">
+      <use href="#shadow" stroke="none"/><use href="#body" fill="#a084d8"/><path d="M18 48l14 5 14-5" fill="none" stroke="#f4b4e4"/>
+      <path d="M12 34l4-16 10-9h15l8 9 3 17-10 11H23z" fill="#5d487f"/><use href="#face" fill="#815040"/>
+      <path d="M16 26l9-13 14-2 10 13-16-3z" fill="#bf99f1"/><path d="M18 30l14 2 14-2v10l-14 6-14-6z" fill="#321e47"/>
+      <path d="M23 28l6 1m6 0 6-1" stroke="#fce3ff" stroke-width="3"/>
+    </g>
+  </g>
+</svg>

@@ -2,7 +2,7 @@ import type { ComponentType } from 'react'
 import type { InputRouter, PlayerActionEvent } from '../input/InputRouter'
 
 export type GameStatus = 'playable' | 'coming-soon'
-export type GameInput = 'keyboard' | 'gamepad' | 'phone'
+export type GameInput = 'keyboard' | 'gamepad' | 'phone' | 'touch'
 export type GameCategory = 'featured' | 'quick' | 'multiplayer' | 'upcoming'
 export interface GameRunStats {
   characterId?: string
@@ -38,6 +38,7 @@ export type GameEvent =
   | { type: 'ready' }
   | { type: 'playing' }
   | { type: 'score'; score: number }
+  | { type: 'board-status'; district: number; name: string; lives: number; remaining: number; powerSeconds: number }
   | { type: 'stats'; stats: GameRunStats }
   | { type: 'ended'; score: number; reason: 'game-over' | 'completed'; stats?: GameRunStats }
 export interface GameContext {

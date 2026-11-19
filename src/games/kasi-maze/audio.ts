@@ -4,11 +4,19 @@
  * One scheduler, one AudioContext, and all nodes are released on exit.
  */
 export type KasiMusicMode = 'off' | 'menu' | 'game' | 'power' | 'danger'
-export type KasiEffect = 'navigate' | 'confirm' | 'countdown' | 'go' | 'pickup' | 'power' | 'tag' | 'hit' | 'level' | 'over' | 'pause' | 'highscore'
+export type KasiEffect = 'navigate' | 'confirm' | 'countdown' | 'go' | 'pickup' | 'power' | 'tag' | 'hit' | 'level' | 'over' | 'pause' | 'highscore' | 'milestone'
 export interface KasiSound { volume: number; muted: boolean; musicVolume?: number }
-const BPM = 112
+const BPM = 114
 const STEP = 60 / BPM / 4
-const NOTES = [55, 65.406, 73.416, 82.407] // A1, C2, D2, E2
+const ROOTS = [45, 45, 41, 43, 45, 48, 41, 40, 45, 45, 41, 43, 45, 48, 41, 40]
+const LOG_PATTERNS = [
+  [[0,0],[3,12],[6,7],[9,0],[11,0],[14,3]],
+  [[2,0],[5,7],[8,12],[10,0],[13,7],[15,0]],
+  [[0,0],[4,12],[7,7],[10,0],[12,0],[15,7]],
+  [[1,0],[3,0],[6,12],[9,7],[12,0],[14,12],[15,7]],
+]
+const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12)
+const LOOP_STEPS = ROOTS.length * 16
 export class AudioDirector {
   private context: AudioContext | null = null
   private music: GainNode | null = null
@@ -49,8 +57,15 @@ export class AudioDirector {
         this.context = context
         this.music = context.createGain()
         this.effects = context.createGain()
-        this.music.connect(context.destination)
-        this.effects.connect(context.destination)
+        const limiter = context.createDynamicsCompressor()
+        limiter.threshold.value = -16
+        limiter.knee.value = 18
+        limiter.ratio.value = 5
+        limiter.attack.value = .008
+        limiter.release.value = .15
+        this.music.connect(limiter)
+        this.effects.connect(limiter)
+        limiter.connect(context.destination)
         const buffer = context.createBuffer(1, Math.floor(context.sampleRate * .16), context.sampleRate)
         const data = buffer.getChannelData(0)
         // Deterministic noise avoids heavyweight decoded samples.
@@ -69,10 +84,10 @@ export class AudioDirector {
   }
   private applyGain() {
     if (!this.context || !this.music || !this.effects) return
-    const volume = this.settings.muted ? 0 : Math.max(0,Math.min(1,this.settings.volume))
+    const volume = this.settings.muted || this.autoMuted ? 0 : Math.max(0,Math.min(1,this.settings.volume))
     const now = this.context.currentTime
-    this.effects.gain.setTargetAtTime(volume * .4, now, .03)
-    const level = this.state === 'off' || this.paused || this.autoMuted ? 0 : this.state === 'menu' ? .22 : this.state === 'power' ? .38 : this.state === 'danger' ? .34 : .31
+    this.effects.gain.setTargetAtTime(volume * .46, now, .03)
+    const level = this.state === 'off' || this.paused || this.autoMuted ? 0 : this.state === 'menu' ? .24 : this.state === 'power' ? .44 : this.state === 'danger' ? .34 : .36
     this.music.gain.setTargetAtTime(volume * (this.settings.musicVolume ?? .75) * level, now, .11)
   }
   mode(mode: KasiMusicMode) {
@@ -110,25 +125,38 @@ export class AudioDirector {
     source.start(time); source.stop(time + length)
   }
   private playStep(step: number, time: number) {
-    if (!this.music || this.state === 'off' || this.paused) return
+    if (!this.music || this.state === 'off' || this.paused || this.autoMuted || this.settings.muted) return
     const pos = step % 16
-    const bar = Math.floor(step/16) % 4
+    const bar = Math.floor(step / 16)
+    const section = Math.floor(bar / 4)
+    const swing = time + (pos % 2 ? STEP * .18 : 0)
     const active = this.state === 'power'
-    const tonic = NOTES[bar]
-    const kick = pos === 0 || pos === 4 || pos === 8 || pos === 12 || (active && pos === 14)
-    if (kick) this.voice(142,time,.23,active ? .86 : .66,'sine',this.music,.29)
-    if ([2,6,10,14].includes(pos)) this.percussion(time,.065,.11,6400)
-    if ([3,7,11,15].includes(pos)) this.percussion(time,.12,.065,4100)
-    if (pos === 4 || pos === 12) this.percussion(time,.14,.17,1700)
-    const bassPattern = [0,-1,2,-1,0,-1,3,-1,2,-1,0,3,-1,2,-1,0]
-    const bassNote = bassPattern[pos]
-    if (bassNote !== -1) this.voice(tonic * [1,1.5,1.334,1.125][bassNote],time,STEP*.95, .38, 'triangle',this.music,.78)
-    if ([0,6,10,14].includes(pos)) {
-      const note = tonic * [4,4.5,5,6][(Math.floor(pos/4)+bar)%4]
-      this.voice(note,time,.18,.13,'sine',this.music)
+    const root = ROOTS[bar]
+    if (pos % 4 === 0 || ((active || bar % 4 === 3) && pos === 14)) {
+      this.voice(156, time, .19, active ? .85 : .72, 'sine', this.music, .29)
     }
-    if ((active || this.state === 'menu') && [2,5,9,13].includes(pos)) {
-      this.voice(tonic * [8,9,10,12][(pos+bar)%4],time,.13,.075,'triangle',this.music)
+    if (pos % 4 === 2) this.percussion(time, .052, .095, 6700)
+    if (pos % 4 === 3) this.percussion(swing, .085, pos === 15 ? .13 : .04, 4500)
+    if (pos === 4 || pos === 12) {
+      this.percussion(time, .095, .16, 1400)
+      this.percussion(time + .019, .065, .055, 2300)
+    }
+    const bass = LOG_PATTERNS[bar % 4].find(([at]) => at === pos)
+    if (bass) {
+      const note = hz(root + bass[1])
+      this.voice(note * 1.36, swing, .17, .58, 'sine', this.music, .73)
+      this.voice(note * 2, swing, .075, .12, 'triangle', this.music, .84)
+    }
+    if ([0, 6, 10].includes(pos) && !(section === 2 && pos === 6)) {
+      const voicing = bar % 4 === 3 ? [12, 16, 19, 22] : [12, 15, 19, 22]
+      for (const [index, interval] of voicing.entries()) {
+        this.voice(hz(root + interval + 12), swing + index * .009, .22 - index * .025, .074, 'triangle', this.music)
+      }
+    }
+    if ((section >= 2 || active) && [2, 5, 9, 13].includes(pos)) {
+      const lead = [31, 27, 34, 29][(pos + bar) % 4]
+      this.voice(hz(root + lead), swing, .16, .085, 'sine', this.music)
+      this.voice(hz(root + lead), swing + STEP * 1.5, .11, .027, 'sine', this.music)
     }
   }
   private schedule() {
@@ -138,34 +166,39 @@ export class AudioDirector {
     let steps = 0
     while (this.next < now + .14 && steps++ < 6) {
       this.playStep(this.step,this.next)
-      this.step++
+      this.step = (this.step + 1) % LOOP_STEPS
       this.next += STEP
     }
   }
   effect(cue: KasiEffect, variation = 0) {
     const context = this.context
     const out = this.effects
-    if (!context || !out || this.destroyed || this.settings.muted) return
+    if (!context || !out || this.destroyed || this.settings.muted || this.autoMuted || this.paused) return
     const now = context.currentTime + .003
     if (cue === 'pickup') {
       if (now - this.lastPickup < .065) return
       this.lastPickup = now
-      this.voice(430 + (variation % 6) * 33,now,.085,.23,'sine',out,1.5)
+      const note=hz([76,79,81,84,86,88][variation%6])
+      this.voice(note,now,.068,.21,'sine',out,1.34)
+      this.voice(note/2,now+.008,.05,.11,'triangle',out)
       return
     }
     const pitches: Record<Exclude<KasiEffect,'pickup'>, [number,number,number,OscillatorType]> = {
       navigate:[600,.07,.22,'sine'], confirm:[670,.19,.33,'triangle'],
       countdown:[420,.14,.24,'triangle'],go:[830,.3,.43,'triangle'],
-      power:[210,.45,.65,'sawtooth'],tag:[890,.26,.42,'triangle'],
-      hit:[142,.46,.64,'sawtooth'],level:[640,.36,.42,'triangle'],
+      power:[220,.36,.48,'triangle'],tag:[670,.22,.48,'triangle'],
+      hit:[160,.37,.5,'triangle'],level:[640,.36,.42,'triangle'],
       over:[210,.52,.45,'sine'],pause:[300,.16,.19,'sine'],
-      highscore:[880,.44,.5,'triangle'],
+      highscore:[880,.44,.5,'triangle'],milestone:[523,.20,.32,'sine'],
     }
     const [freq,length,gain,type] = pitches[cue]
-    this.voice(freq,now,length,gain,type,out,cue==='hit' ? .3 : 1.35)
-    if (cue === 'level' || cue === 'highscore' || cue === 'go') {
+    this.voice(freq,now,length,gain,type,out,cue==='hit' || cue==='over' ? .39 : 1.35)
+    if (cue === 'level' || cue === 'highscore' || cue === 'go' || cue === 'power' || cue === 'tag' || cue === 'milestone') {
       this.voice(freq * 1.5,now+.085,length*.82,gain*.6,'sine',out,1.2)
       this.voice(freq * 2,now+.17,length*.68,gain*.45,'sine',out,1.14)
+    } else if (cue === 'over') {
+      this.voice(freq * .75, now + .16, .4, .37, 'triangle', out, .63)
+      this.voice(freq * .5, now + .36, .52, .44, 'sine', out, .55)
     }
   }
   dispose() {

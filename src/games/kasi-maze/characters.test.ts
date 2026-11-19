@@ -10,7 +10,7 @@ describe('Kasi Maze playable characters',()=>{
     expect(getKasiCharacter('sbu').speed).toBeCloseTo(1.04)
     expect(getKasiCharacter('zee').powerBonus).toBeCloseTo(.7)
     expect(getKasiCharacter('katlego').cornerBufferMs).toBeGreaterThan(150)
-    expect(getKasiCharacter('thami').scoreMultiplier).toBeCloseTo(1.12)
+    expect(getKasiCharacter('thami').scoreMultiplier).toBeCloseTo(1.2)
     expect(getKasiCharacter('broken').id).toBe('sbu')
   })
 })

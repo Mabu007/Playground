@@ -44,12 +44,18 @@ export function createMaze(level=1): Maze {
   for(const y of [1,5,8,11,15]) laneH(y,1,27)
   for(const x of [1,7,14,21,27]) laneV(x,1,15)
   // Hand-placed side streets form recognizable turns and escape loops.
-  for(const [x,a,b] of [
+  const alleys = [
     [4,1,5],[10,1,5],[18,1,5],[24,1,5],
     [4,11,15],[10,11,15],[18,11,15],[24,11,15],
     [4,6,8],[10,8,11],[18,5,8],[24,8,11],
     [3,8,11],[25,5,8],[12,5,8],[16,8,11],
-  ])laneV(x,a,b)
+  ]
+  const closed = [[], [0,8,13], [1,6,10], [2,5,14]][(level - 1) % 4]
+  for (const [index,[x,a,b]] of alleys.entries()) if (!closed.includes(index)) laneV(x,a,b)
+  if (level > 1) {
+    const added = [[11,1,5], [19,8,11], [6,11,15]][(level - 2) % 3]
+    laneV(added[0],added[1],added[2])
+  }
   for(const [y,a,b] of [
     [3,1,7],[3,14,21],[3,21,27],
     [6,7,14],[6,18,27],
@@ -74,43 +80,81 @@ export function createMaze(level=1): Maze {
   for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLUMNS-1;x++){
     if(walls[y][x])continue
     if((x>=12&&x<=16&&y>=7&&y<=9)||x===PLAYER_SPAWN.x&&y===PLAYER_SPAWN.y)continue
-    const boost=(x===1||x===COLUMNS-2)&&(y===1||y===ROWS-2)
+    const boost=((x===1||x===COLUMNS-2)&&(y===1||y===ROWS-2))
+      || (level===1&&x===18&&y===13)
     pellets.set(`${x},${y}`,boost?'boost':'beat')
   }
   return {width:COLUMNS,height:ROWS,walls,pellets,start:{...PLAYER_SPAWN},enemies:RIVAL_SPAWNS.map(p=>({...p}))}
 }
-/** BFS shortest path with optional reversal avoidance. */
-export function routeTowards(maze: Maze,from: Point,target: Point,avoid?:Direction):Direction|null {
-  const options=neighbors(maze,from)
-  if(!options.length)return null
-  const available=options.filter(option=>option.direction!==avoid)
-  const candidates=available.length?available:options
-  let destination=target
-  if(!walkable(maze,destination)){
-    let best=Infinity
-    for(let y=1;y<maze.height-1;y++)for(let x=1;x<maze.width-1;x++){
-      if(maze.walls[y][x])continue
-      const distance=Math.abs(target.x-x)+Math.abs(target.y-y)
-      if(distance<best){best=distance;destination={x,y}}
+/** Memoize distance fields per district. Typed arrays keep routing off the GC hot path. */
+const fields = new WeakMap<Maze, Map<number, Uint16Array>>()
+const cellIndex = (maze: Maze, p: Point) => p.y * maze.width + p.x
+const UNREACHABLE = 65535
+
+function distanceField(maze: Maze, target: Point): Uint16Array {
+  let destination = target
+  if (!walkable(maze, destination)) {
+    let best = Infinity
+    for (let y = 1; y < maze.height - 1; y++) for (let x = 1; x < maze.width - 1; x++) {
+      const distance = Math.abs(target.x - x) + Math.abs(target.y - y)
+      if (!maze.walls[y][x] && distance < best) {
+        best = distance
+        destination = { x, y }
+      }
     }
   }
-  const depths=new Map<string,number>([[keyOf(destination),0]])
-  const queue=[destination]
-  for(let head=0;head<queue.length;head++){
-    const point=queue[head]
-    const depth=depths.get(keyOf(point))!
-    for(const step of neighbors(maze,point)){
-      const key=keyOf(step.point)
-      if(depths.has(key))continue
-      depths.set(key,depth+1)
+  const index = cellIndex(maze, destination)
+  let cache = fields.get(maze)
+  if (!cache) { cache = new Map(); fields.set(maze, cache) }
+  const cached = cache.get(index)
+  if (cached) return cached
+  const depths = new Uint16Array(maze.width * maze.height).fill(UNREACHABLE)
+  const queue = [destination]
+  depths[index] = 0
+  for (let head = 0; head < queue.length; head++) {
+    const point = queue[head]
+    const depth = depths[cellIndex(maze, point)]
+    for (const step of neighbors(maze, point)) {
+      const next = cellIndex(maze, step.point)
+      if (depths[next] !== UNREACHABLE) continue
+      depths[next] = depth + 1
       queue.push(step.point)
     }
   }
-  let bestOption=candidates[0]
-  let bestDistance=Infinity
-  for(const option of candidates){
-    const d=depths.get(keyOf(option.point))??Infinity
-    if(d<bestDistance){bestOption=option;bestDistance=d}
+  cache.set(index, depths)
+  return depths
+}
+
+export function routeTowards(maze: Maze, from: Point, target: Point, avoid?: Direction, flee = false): Direction | null {
+  const options = neighbors(maze, from)
+  const available = options.filter(option => option.direction !== avoid)
+  const candidates = available.length ? available : options
+  if (candidates.length < 2) return candidates[0]?.direction ?? null
+  const distances = distanceField(maze, target)
+  let best = candidates[0]
+  for (const option of candidates.slice(1)) {
+    const next = distances[cellIndex(maze, option.point)]
+    const current = distances[cellIndex(maze, best.point)]
+    if (flee ? next > current : next < current) best = option
   }
-  return bestOption.direction
+  return best.direction
+}
+
+export function lookAhead(maze: Maze, from: Point, direction: Direction | null, steps: number): Point {
+  if (!direction) return from
+  const delta = DELTA[direction]
+  let point = from
+  for (let i = 0; i < steps; i++) {
+    const next = { x: point.x + delta.x, y: point.y + delta.y }
+    if (!walkable(maze, next)) break
+    point = next
+  }
+  return point
+}
+
+/** Curated district phases preserve an escape window even late in a run. */
+export function chasePhase(seconds: number, district: number) {
+  const chase = Math.min(17, 9 + (district - 1) * 1.7)
+  const scatter = Math.max(3.2, 5 - (district - 1) * .35)
+  return (seconds % (chase + scatter)) < scatter ? 'scatter' : 'chase'
 }

@@ -10,6 +10,7 @@ export default function CharacterSelect({ onStart, onExit, sound }: GameEntryPro
   const [id, setId] = useState<KasiCharacterId>(loadKasiCharacter)
   const chosen = getKasiCharacter(id)
   const confirmed = useRef(false)
+  const startButton = useRef<HTMLButtonElement>(null)
   const current = useRef(id)
   current.current = id
   const pick = (next: KasiCharacterId) => {
@@ -39,6 +40,7 @@ export default function CharacterSelect({ onStart, onExit, sound }: GameEntryPro
         const index = KASI_CHARACTERS.findIndex(c => c.id === current.current)
         const next = (index + (event.action === 'MOVE_LEFT' ? 3 : 1)) % KASI_CHARACTERS.length
         pick(KASI_CHARACTERS[next].id)
+        startButton.current?.focus({ preventScroll: true })
       } else if (event.action === 'CONFIRM' || event.action === 'PRIMARY_ACTION') confirm()
       else if (event.action === 'BACK') leave()
     })
@@ -49,9 +51,7 @@ export default function CharacterSelect({ onStart, onExit, sound }: GameEntryPro
     <section className="kasi-select" aria-label="Kasi Maze character selection" data-testid="kasi-character-select">
       <div className="kasi-select-glow" aria-hidden="true"/>
       <div className="kasi-select-title">
-        <span className="kasi-eyebrow"><span/> YOUR STORY STARTS HERE</span>
-        <h1>WHO'S RUNNING<br/><em>THE STREETS?</em></h1>
-        <p>Four originals. One maze. Choose your main character.</p>
+        <h1>CHOOSE YOUR <em>RUNNER</em></h1>
       </div>
       <div className="kasi-character-grid" role="group" aria-label="Choose a character">
         {KASI_CHARACTERS.map((character, index) => <button
@@ -74,7 +74,7 @@ export default function CharacterSelect({ onStart, onExit, sound }: GameEntryPro
         <div className="kasi-selected-trait"><span>YOU PICKED</span><strong style={{ color: chosen.color }}>{chosen.name}</strong><p>{chosen.tagline} · {chosen.detail}</p></div>
         <div className="kasi-select-actions">
           <button className="kasi-back-btn" type="button" data-native-keys onClick={leave}><ArrowLeft size={17}/> BACK</button>
-          <button className="kasi-start-btn" type="button" data-native-keys onClick={confirm} data-testid="start-kasi"><Play size={19} fill="currentColor"/> LET'S GO <ArrowRight size={18}/></button>
+          <button ref={startButton} className="kasi-start-btn" type="button" data-native-keys onClick={confirm} data-testid="start-kasi"><Play size={19} fill="currentColor"/> LET'S GO <ArrowRight size={18}/></button>
         </div>
       </div>
       <p className="kasi-select-help">← → TO CHOOSE <span>·</span> ENTER TO START <span>·</span> ESC TO EXIT</p>
