@@ -15,16 +15,6 @@ jobs:
           node-version: '22'
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Save generated lockfile on main (first run only)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          if ! git ls-files --error-unmatch package-lock.json > /dev/null 2>&1; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json
-            git commit -m "chore: lock dependencies for reproducible installs"
-            git push || echo "Lockfile push could not be completed"
-          fi
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run test
