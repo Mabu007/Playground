@@ -3,7 +3,7 @@ import { games, gameById, playableGames } from './registry'
 
 describe('game registry contract', () => {
   it('has unique, navigable, complete metadata', () => {
-    expect(games.length).toBeGreaterThanOrEqual(3)
+    expect(games.length).toBeGreaterThanOrEqual(4)
     expect(new Set(games.map(g => g.id)).size).toBe(games.length)
     for (const game of games) {
       expect(game.id).toMatch(/^[a-z0-9-]+$/)
@@ -17,9 +17,9 @@ describe('game registry contract', () => {
       expect(gameById(game.id)).toBe(game)
     }
   })
-
-  it('never exposes an unimplemented game as playable', () => {
+  it('registers Kasi Maze as a working module and never launches placeholders', () => {
     const playable = playableGames()
+    expect(playable.map(g => g.id)).toContain('kasi-maze')
     expect(playable.map(g => g.id)).toContain('neon-dodge')
     expect(playable.every(g => g.status === 'playable' && typeof g.load === 'function')).toBe(true)
     for (const upcoming of games.filter(g => g.status === 'coming-soon')) {
@@ -27,7 +27,6 @@ describe('game registry contract', () => {
       expect(playable.map(g => g.id)).not.toContain(upcoming.id)
     }
   })
-
   it('keeps upcoming multiplayer metadata honest', () => {
     const fighters = gameById('kasi-fighters')
     expect(fighters?.status).toBe('coming-soon')
