@@ -15,9 +15,11 @@ export function GameStage() {
   const view = useConsole(s => s.view)
   const score = useConsole(s => s.score)
   const elapsedMs = useConsole(s => s.elapsedMs)
+  const error = useConsole(s => s.error)
   const remainingMs = useConsole(s => s.remainingMs)
   const best = useConsole(s => s.data.progress.bestScores[activeId ?? ''] ?? 0)
   const data = useConsole(s => s.data)
+  const info = gameById(activeId ?? '')
   const stageRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef(new GameHost())
   const viewRef = useRef(view)
@@ -94,11 +96,12 @@ export function GameStage() {
   const ended = view === 'SESSION_ENDED'
   const paused = view === 'PAUSED'
   const loading = view === 'LOADING'
+  useEffect(() => { document.getElementById("game-root")?.focus({ preventScroll: true }) }, [])
   return (
-    <div className="game-screen" data-testid="game-screen">
+    <div className="game-screen" data-testid="game-screen" id="game-root" tabIndex={-1}>
       <header className="game-topbar">
         <button className="icon-text-button" data-native-keys onClick={exit} aria-label="Exit to library"><ArrowLeft size={18}/> <span>BACK TO LIBRARY</span></button>
-        <div className="game-running-title"><span className="live-dot"/> NEON DODGE <span className="subdued">/ ARCADE MODE</span></div>
+        <div className="game-running-title"><span className="live-dot"/> {info?.title ?? 'ARCADE'} <span className="subdued">/ ARCADE MODE</span></div>
         <button className="icon-button" data-native-keys onClick={() => void toggleFullscreen()} title="Toggle fullscreen" aria-label="Toggle fullscreen"><Maximize2 size={18}/></button>
       </header>
 
@@ -114,6 +117,12 @@ export function GameStage() {
             {loading && (
               <motion.div className="game-modal-screen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div className="loading-orbit"/><span className="eyebrow">INITIALIZING ARENA</span><h2>LIGHTS ON. GAME ON.</h2>
+              </motion.div>
+            )}
+            {view === 'ERROR' && (
+              <motion.div className="game-modal-screen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <span className="eyebrow">COULD NOT LAUNCH GAME</span><h2>SOMETHING WENT WRONG.</h2><p>{error ?? 'Please try again.'}</p>
+                <div className="modal-actions"><button className="button-primary" onClick={exit}><ArrowLeft size={18}/> BACK TO LIBRARY</button></div>
               </motion.div>
             )}
             {paused && (
@@ -133,10 +142,10 @@ export function GameStage() {
           </AnimatePresence>
         </div>
         <div className="game-footer">
-          <div className="game-controls-note"><Keyboard size={17}/> <span><kbd>←</kbd> <kbd>→</kbd> MOVE</span><span><kbd>SPACE</kbd> SHIELD</span><span><kbd>P</kbd> PAUSE</span><span><kbd>R</kbd> RESTART</span></div>
+          <div className="game-controls-note"><Keyboard size={17}/> {info?.controls.map(control => <span key={control.label}>{control.keys.map(key => <kbd key={key}>{key}</kbd>)} {control.label}</span>)}<span><kbd>P</kbd> PAUSE</span><span><kbd>R</kbd> RESTART</span></div>
           <div className="stage-buttons"><button className="stage-control" data-native-keys onClick={restart} disabled={loading}><RotateCcw size={17}/> Restart</button><button className="stage-control strong" data-native-keys onClick={pause} disabled={loading || ended}>{paused ? <Play size={17}/> : <Pause size={17}/>} {paused ? 'Resume' : 'Pause'}</button></div>
         </div>
-        <p className="mobile-game-warning">Neon Dodge requires a connected keyboard to play. Touch gameplay is not available in this version.</p>
+        <p className="mobile-game-warning">This game requires a connected keyboard to play. Touch gameplay is not available in this version.</p>
       </div>
     </div>
   )

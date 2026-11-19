@@ -121,8 +121,11 @@ class NeonScene extends Phaser.Scene {
     this.ctx.emit({ type: 'score', score: 0 })
   }
   setAction(action: PlayerAction, pressed: boolean) {
-    if (pressed) this.held.add(action)
-    else this.held.delete(action)
+    if (pressed) {
+      // Paused scenes must not accept new gameplay commands.
+      if (!this.scene.isActive()) return
+      this.held.add(action)
+    } else this.held.delete(action)
     if (!this.running || !pressed) return
     if (action === 'PRIMARY_ACTION' && this.cooldown <= 0) {
       this.shieldTime = 0.85

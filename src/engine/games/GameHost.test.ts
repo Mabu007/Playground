@@ -6,7 +6,7 @@ const ctx = { parent: {} as HTMLElement, playerId: 'player-1', input: new InputR
 const metadata: Omit<GameInfo, 'load'> = {
   id: 'test', title: 'Test', eyebrow: '', tagline: '', description: '', genre: '', tags: [],
   players: { min: 1, max: 1 }, inputMethods: ['keyboard'], category: ['quick'], status: 'playable',
-  artwork: { cover: '', hero: '' }, instructions: [],
+  artwork: { cover: '', hero: '' }, instructions: [], controls: [],
 }
 describe('game host lifecycle', () => {
   it('refuses duplicate launches; destroys on exit; remounts safely', async () => {

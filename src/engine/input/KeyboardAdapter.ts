@@ -31,7 +31,10 @@ export class KeyboardAdapter implements InputAdapter {
   }
   private blocked = (event: KeyboardEvent) => {
     const el = event.target
-    return el instanceof HTMLElement && !!el.closest('input, select, textarea, [contenteditable="true"], [data-native-keys]')
+    if (!(el instanceof HTMLElement)) return false
+    if (el.closest('input, select, textarea, [contenteditable="true"]')) return true
+    // Native elements own their Enter/Space behavior; console still handles directional keys and Escape.
+    return (event.key === 'Enter' || event.key === ' ') && !!el.closest('button, a, [role="button"], [data-native-keys]')
   }
   private normalized = (key: string) => key.length === 1 ? key.toLowerCase() : key
   private onDown = (event: KeyboardEvent) => {

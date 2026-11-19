@@ -140,6 +140,7 @@ function Launcher() {
         return
       }
       if (state.view === 'GAME_DETAILS') {
+        if (event.action === 'TOGGLE_FULLSCREEN' && !event.repeated) { void toggleFullscreen(); return }
         if (event.action === 'BACK' && !event.repeated) state.closeDetails()
         else if ((event.action === 'CONFIRM' || event.action === 'PRIMARY_ACTION') && !event.repeated) state.launch(state.selectedId)
         return
@@ -168,7 +169,7 @@ function Launcher() {
     return off
   }, [])
 
-  return <div className="console-shell" id="top">
+  return <div className={`console-shell ${useConsole.getState().data.settings.reducedMotion ? "reduce-motion" : ""}`} id="top">
     <header className="main-header">
       <button className="brand-button" onClick={() => goTo('top')} aria-label="Go to the top of Playground"><Brand/></button>
       <nav className="desktop-nav" aria-label="Main navigation">

@@ -18,6 +18,7 @@ export interface GameInfo {
   status: GameStatus
   artwork: { cover: string; hero: string }
   instructions: string[]
+  controls: { label: string; keys: string[] }[]
   load?: () => Promise<GameModule>
 }
 export type GameEvent =

@@ -15,6 +15,7 @@ export const games: GameInfo[] = [
     status: 'playable',
     artwork: { cover: 'neon-dodge', hero: 'neon-dodge' },
     instructions: ['Move with ← → or A / D', 'Press SPACE to activate your rechargeable shield', 'Collect lime energy cores, avoid red hazards', 'Survive longer to climb your personal leaderboard'],
+    controls: [{label:'MOVE',keys:['←','→']},{label:'SHIELD',keys:['SPACE']}],
     load: () => import('../../games/neon-dodge'),
   },
   {
@@ -31,6 +32,7 @@ export const games: GameInfo[] = [
     status: 'coming-soon',
     artwork: { cover: 'taxi-rush', hero: 'taxi-rush' },
     instructions: ['Coming soon — gameplay is not available yet.'],
+    controls: [],
   },
   {
     id: 'kasi-fighters',
@@ -46,6 +48,7 @@ export const games: GameInfo[] = [
     status: 'coming-soon',
     artwork: { cover: 'kasi-fighters', hero: 'kasi-fighters' },
     instructions: ['Coming soon — local multiplayer is planned, not yet available.'],
+    controls: [],
   },
 ]
 export const gameById = (id: string) => games.find((game) => game.id === id)

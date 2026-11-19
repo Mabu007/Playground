@@ -6,7 +6,7 @@ const transitions: Record<ConsoleView, ConsoleView[]> = {
   LOADING: ['PLAYING', 'ERROR', 'ATTRACT', 'BROWSING'],
   PLAYING: ['PAUSED', 'SESSION_ENDED', 'ERROR', 'ATTRACT'],
   PAUSED: ['PLAYING', 'SESSION_ENDED', 'ERROR', 'ATTRACT'],
-  SESSION_ENDED: ['LOADING', 'ATTRACT', 'BROWSING'],
+  SESSION_ENDED: ['PLAYING', 'LOADING', 'ATTRACT', 'BROWSING'],
   ERROR: ['ATTRACT', 'BROWSING', 'LOADING'],
 }
 export function canTransition(from: ConsoleView, to: ConsoleView): boolean { return from === to || transitions[from].includes(to) }

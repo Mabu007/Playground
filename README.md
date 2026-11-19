@@ -8,7 +8,7 @@ PLAYGROUND is a keyboard-first, cinematic arcade console for the browser. Phase 
 Node.js 22+ and npm 10+ (Node 20.19+ also works).
 
 ```bash
-npm ci
+npm install
 npm run dev
 # open http://localhost:5173
 ```
@@ -25,7 +25,7 @@ npm run dev
 | `npm run test` | Vitest unit tests |
 | `npm run test:e2e` | Playwright browser tests (run `npx playwright install chromium` first) |
 
-`npm run build` generates static assets in `dist/`, suitable for Vercel (framework Vite; build `npm run build`, output `dist`). CI runs typecheck, lint, unit tests and build; browser E2E uses Playwright.
+`npm run build` generates static assets in `dist/`, suitable for Vercel (framework Vite; build `npm run build`, output `dist`). CI is configured to run typecheck, lint, unit tests, build and browser E2E using Playwright. Until a generated lockfile is committed, install dependencies with `npm install`, not `npm ci`.
 
 ## Controls
 

@@ -12,7 +12,7 @@ test('library shows real and upcoming titles and works on keyboard', async ({ pa
   await page.keyboard.press('Enter')
   await expect(page.getByRole('dialog', { name: /taxi rush game details/i })).toBeVisible()
   await expect(page.getByText('COMING SOON', { exact: true }).first()).toBeVisible()
-  await expect(page.getByRole('button', { name: 'PLAY NOW' })).toHaveCount(1) // hero under dialog, not a launch in details
+  await expect(page.getByRole('dialog', { name: /taxi rush/i }).getByRole('button', { name: /PLAY NOW/i })).toHaveCount(0)
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog', { name: /taxi rush/i })).toHaveCount(0)
 })
