@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser'
-import type { GameContext, GameInstance, GameModule } from '../../engine/games/types'
+import type { GameContext, GameModule } from '../../engine/games/types'
 import type { PlayerAction } from '../../engine/input/InputRouter'
 
 const W = 960
