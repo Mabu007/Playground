@@ -85,7 +85,6 @@ function GameCard({ game, row, column }: { game: GameInfo; row: number; column: 
         <Artwork id={game.artwork.cover} className="card-art"/>
         <span className={`card-status ${game.status === 'playable' ? 'status-live' : ''}`}>{game.status === 'playable' ? <><span className="status-dot"/> PLAYABLE NOW</> : 'COMING SOON'}</span>
         <div className="card-art-shade"/>
-        <span className="card-title-art">{game.title}</span>
       </div>
       <span className="card-bottom">
         <span className="card-bottom-text"><strong>{game.title}</strong><span>{game.genre} <b>·</b> {game.players.max} {game.players.max === 1 ? 'player' : 'players'}</span></span>
@@ -170,7 +169,14 @@ function Launcher() {
   const [navSection, setNavSection] = useState('DISCOVER')
   const [headerScrolled, setHeaderScrolled] = useState(false)
   useEffect(() => {
-    const update = () => setHeaderScrolled(window.scrollY > 36)
+    const update = () => {
+      const position = window.scrollY
+      setHeaderScrolled(position > 36)
+      const viewportAnchor = position + window.innerHeight * 0.35
+      const recentTop = document.getElementById('recent')?.offsetTop ?? Infinity
+      const gamesTop = document.getElementById('library')?.offsetTop ?? Infinity
+      setNavSection(viewportAnchor >= recentTop ? 'MY PLAYS' : viewportAnchor >= gamesTop ? 'GAMES' : 'DISCOVER')
+    }
     window.addEventListener('scroll', update, { passive: true })
     update()
     return () => window.removeEventListener('scroll', update)
@@ -228,7 +234,7 @@ function Launcher() {
         <button className={navSection === 'GAMES' ? 'active' : ''} onClick={() => goTo('library')}>Games</button>
         <button className={navSection === 'MY PLAYS' ? 'active' : ''} onClick={() => goTo('recent')}>My Plays</button>
       </nav>
-      <div className="header-actions"><span className="header-build"><span className="live-dot"/> THE ARCADE IS OPEN</span><button className="icon-button settings-trigger" aria-label="Open settings" onClick={() => toggleSettings(true)}><Settings2 size={20}/></button><button className="icon-button mobile-menu-trigger" aria-label="Open navigation" onClick={() => setMobileMenu(!mobileMenu)}>{mobileMenu ? <X size={20}/> : <Menu size={20}/>}</button></div>
+      <div className="header-actions"><button className="icon-button settings-trigger" aria-label="Open settings" onClick={() => toggleSettings(true)}><Settings2 size={20}/></button><button className="icon-button mobile-menu-trigger" aria-label="Open navigation" onClick={() => setMobileMenu(!mobileMenu)}>{mobileMenu ? <X size={20}/> : <Menu size={20}/>}</button></div>
     </header>
     {mobileMenu && <nav className="mobile-nav" aria-label="Mobile navigation"><button onClick={() => goTo('top')}>Discover</button><button onClick={() => goTo('library')}>Games</button><button onClick={() => goTo('recent')}>My Plays</button><button onClick={() => { setMobileMenu(false); toggleSettings(true) }}>Settings</button></nav>}
     <main>
