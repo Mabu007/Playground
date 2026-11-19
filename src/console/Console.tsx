@@ -161,6 +161,7 @@ function Launcher() {
   const settingsOpen = useConsole(s => s.settingsOpen)
   const recent = useConsole(s => s.data.progress.recent)
   const totalPlays = useConsole(s => s.data.progress.totalPlays)
+  const reducedMotion = useConsole(s => s.data.settings.reducedMotion)
   const details = gameById(selectedId)
   const openDetails = useConsole(s => s.openDetails)
   const launch = useConsole(s => s.launch)
@@ -226,7 +227,7 @@ function Launcher() {
     return off
   }, [])
 
-  return <div className={`console-shell ${useConsole.getState().data.settings.reducedMotion ? "reduce-motion" : ""}`} id="top">
+  return <div className={`console-shell ${reducedMotion ? "reduce-motion" : ""}`} id="top">
     <header className={`main-header ${headerScrolled ? "header-scrolled" : ""}`}>
       <button className="brand-button" onClick={() => goTo('top')} aria-label="Go to the top of Playground"><Brand/></button>
       <nav className="desktop-nav" aria-label="Main navigation">
