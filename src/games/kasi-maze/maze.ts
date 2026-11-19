@@ -1,132 +1,116 @@
-/** Deterministic, connected maze generation. Phaser-independent for testing and reuse. */
+/** Township street-network maze. Pure deterministic geometry with no Phaser dependency. */
 export type Point = { x: number; y: number }
 export type Direction = 'left' | 'right' | 'up' | 'down'
-export const DIRECTIONS: readonly Direction[] = ['up', 'left', 'down', 'right']
-export const DELTA: Record<Direction, Point> = {
-  up: { x: 0, y: -1 }, left: { x: -1, y: 0 },
-  down: { x: 0, y: 1 }, right: { x: 1, y: 0 },
-}
-export const OPPOSITE: Record<Direction, Direction> = {
-  up: 'down', down: 'up', left: 'right', right: 'left',
-}
-export const COLUMNS = 27
-export const ROWS = 21
-export const PLAYER_SPAWN: Point = { x: 13, y: 17 }
-export const RIVAL_SPAWNS: Point[] = [
-  { x: 13, y: 9 }, { x: 11, y: 9 }, { x: 15, y: 9 }, { x: 13, y: 7 },
-]
+export const DIRECTIONS: readonly Direction[] = ['up','left','down','right'] as const
+export const DELTA: Record<Direction,Point> = { up:{x:0,y:-1},left:{x:-1,y:0},down:{x:0,y:1},right:{x:1,y:0} }
+export const OPPOSITE: Record<Direction,Direction> = { up:'down',down:'up',left:'right',right:'left' }
+export const COLUMNS = 29
+export const ROWS = 17
+export const PLAYER_SPAWN: Point = {x:14,y:13}
+export const RIVAL_SPAWNS: Point[] = [{x:14,y:8},{x:13,y:8},{x:15,y:8},{x:14,y:7}]
+export type Pickup = 'beat' | 'boost'
 export interface Maze {
   width: number
   height: number
   walls: boolean[][]
-  pellets: Map<string, 'beat' | 'boost'>
+  pellets: Map<string,Pickup>
   start: Point
   enemies: Point[]
 }
 export const keyOf = (p: Point) => `${p.x},${p.y}`
-export function walkable(maze: Maze, p: Point) {
-  return p.x > 0 && p.y > 0 && p.x < maze.width - 1 && p.y < maze.height - 1 &&
-    maze.walls[p.y]?.[p.x] === false
+export function walkable(maze: Maze,p: Point): boolean {
+  return p.x > 0 && p.x < maze.width - 1 && p.y > 0 && p.y < maze.height - 1 && maze.walls[p.y]?.[p.x] === false
 }
-export function neighbors(maze: Maze, p: Point): Array<{ point: Point; direction: Direction }> {
-  return DIRECTIONS.map(direction => ({ direction, point: { x: p.x + DELTA[direction].x, y: p.y + DELTA[direction].y } }))
-    .filter(step => walkable(maze, step.point))
+export function neighbors(maze: Maze,p: Point): {point:Point;direction:Direction}[] {
+  return DIRECTIONS.map(direction=>({direction,point:{x:p.x+DELTA[direction].x,y:p.y+DELTA[direction].y}}))
+    .filter(option=>walkable(maze,option.point))
 }
-function makeRandom(seed: number) {
-  let value = seed >>> 0
-  return () => {
-    value = (Math.imul(1664525, value) + 1013904223) >>> 0
-    return value / 4294967296
+function rng(seed: number) {
+  let value=seed>>>0
+  return () => {value=(Math.imul(value,1664525)+1013904223)>>>0;return value / 4294967296}
+}
+/**
+ * District 01 is hand-authored as city-block streets: five east-west avenues and
+ * five north-south arteries, with deliberately chosen cut-through lanes.
+ * Subsequent districts reuse that connected skeleton and reveal new alleys.
+ */
+export function createMaze(level=1): Maze {
+  const walls=Array.from({length:ROWS},()=>Array.from({length:COLUMNS},()=>true))
+  const carve=(x:number,y:number)=>{
+    if(x>0&&y>0&&x<COLUMNS-1&&y<ROWS-1) walls[y][x]=false
   }
-}
-/** Braided depth-first maze: loops are opened so enemies can flank the player. */
-export function createMaze(level = 1): Maze {
-  const rng = makeRandom(0x4B415349 + Math.max(1, level) * 901)
-  const walls = Array.from({ length: ROWS }, () => Array.from({ length: COLUMNS }, () => true))
-  const carve = (p: Point) => { walls[p.y][p.x] = false }
-  const visited = new Set<string>()
-  const first = { x: 1, y: 1 }
-  const stack: Point[] = [first]
-  visited.add(keyOf(first))
-  carve(first)
-  while (stack.length) {
-    const point = stack[stack.length - 1]
-    const possibilities = DIRECTIONS
-      .map(direction => ({ x: point.x + DELTA[direction].x * 2, y: point.y + DELTA[direction].y * 2 }))
-      .filter(p => p.x > 0 && p.y > 0 && p.x < COLUMNS - 1 && p.y < ROWS - 1 && !visited.has(keyOf(p)))
-    if (!possibilities.length) { stack.pop(); continue }
-    const next = possibilities[Math.floor(rng() * possibilities.length)]
-    visited.add(keyOf(next))
-    carve({ x: (point.x + next.x) / 2, y: (point.y + next.y) / 2 })
-    carve(next)
-    stack.push(next)
-  }
-  // Open select intermediate walls to make deliberate loops rather than a one-path maze.
-  for (let y = 2; y < ROWS - 2; y++) {
-    for (let x = 2; x < COLUMNS - 2; x++) {
-      if (!walls[y][x] || rng() >= 0.36) continue
-      const horizontal = !walls[y][x - 1] && !walls[y][x + 1]
-      const vertical = !walls[y - 1][x] && !walls[y + 1][x]
-      if (horizontal !== vertical) walls[y][x] = false
+  const laneH=(y:number,a:number,b:number)=>{for(let x=a;x<=b;x++)carve(x,y)}
+  const laneV=(x:number,a:number,b:number)=>{for(let y=a;y<=b;y++)carve(x,y)}
+  for(const y of [1,5,8,11,15]) laneH(y,1,27)
+  for(const x of [1,7,14,21,27]) laneV(x,1,15)
+  // Hand-placed side streets form recognizable turns and escape loops.
+  for(const [x,a,b] of [
+    [4,1,5],[10,1,5],[18,1,5],[24,1,5],
+    [4,11,15],[10,11,15],[18,11,15],[24,11,15],
+    [4,6,8],[10,8,11],[18,5,8],[24,8,11],
+    [3,8,11],[25,5,8],[12,5,8],[16,8,11],
+  ])laneV(x,a,b)
+  for(const [y,a,b] of [
+    [3,1,7],[3,14,21],[3,21,27],
+    [6,7,14],[6,18,27],
+    [10,1,7],[10,14,21],
+    [13,7,14],[13,14,21],
+  ])laneH(y,a,b)
+  // The central "rank" is a clean starting plaza for all four rivals.
+  for(let y=7;y<=9;y++)for(let x=12;x<=16;x++)carve(x,y)
+  const random=rng(0x4B415349+level*4051)
+  if(level>1) {
+    // Only OPEN extra optional streets; the core connectivity never changes.
+    for(let i=0;i<Math.min(12,level*2);i++) {
+      const x=2+Math.floor(random()*25)
+      const y=2+Math.floor(random()*13)
+      const side=walls[y][x-1]===false&&walls[y][x+1]===false
+      const top=walls[y-1][x]===false&&walls[y+1][x]===false
+      if(side||top)carve(x,y)
     }
   }
-  // Four-way junction in the heart of the district.
-  for (let y = 8; y <= 10; y++) for (let x = 11; x <= 15; x++) carve({ x, y })
-  for (const p of [PLAYER_SPAWN, ...RIVAL_SPAWNS]) carve(p)
-  const pellets = new Map<string, 'beat' | 'boost'>()
-  for (let y = 1; y < ROWS - 1; y++) {
-    for (let x = 1; x < COLUMNS - 1; x++) {
-      if (walls[y][x]) continue
-      if ((Math.abs(x - 13) <= 2 && Math.abs(y - 9) <= 1) || (x === PLAYER_SPAWN.x && y === PLAYER_SPAWN.y)) continue
-      const boost = (x === 1 || x === COLUMNS - 2) && (y === 1 || y === ROWS - 2)
-      pellets.set(`${x},${y}`, boost ? 'boost' : 'beat')
-    }
+  for(const p of [PLAYER_SPAWN,...RIVAL_SPAWNS])carve(p.x,p.y)
+  const pellets=new Map<string,Pickup>()
+  for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLUMNS-1;x++){
+    if(walls[y][x])continue
+    if((x>=12&&x<=16&&y>=7&&y<=9)||x===PLAYER_SPAWN.x&&y===PLAYER_SPAWN.y)continue
+    const boost=(x===1||x===COLUMNS-2)&&(y===1||y===ROWS-2)
+    pellets.set(`${x},${y}`,boost?'boost':'beat')
   }
-  return { width: COLUMNS, height: ROWS, walls, pellets, start: { ...PLAYER_SPAWN }, enemies: RIVAL_SPAWNS.map(p => ({ ...p })) }
+  return {width:COLUMNS,height:ROWS,walls,pellets,start:{...PLAYER_SPAWN},enemies:RIVAL_SPAWNS.map(p=>({...p}))}
 }
-/** BFS chase/scatter routing: returns a legal first step, never cuts through walls. */
-export function routeTowards(maze: Maze, from: Point, target: Point, avoid?: Direction): Direction | null {
-  const legal = neighbors(maze, from)
-  if (!legal.length) return null
-  const candidates = legal.filter(option => option.direction !== avoid)
-  const available = candidates.length ? candidates : legal
-  const targets = new Set<string>([keyOf(target)])
-  if (!walkable(maze, target)) {
-    targets.clear()
-    let distance = Infinity
-    for (let y = 1; y < maze.height - 1; y++) for (let x = 1; x < maze.width - 1; x++) {
-      if (maze.walls[y][x]) continue
-      const d = Math.abs(target.x - x) + Math.abs(target.y - y)
-      if (d < distance) { targets.clear(); distance = d }
-      if (d === distance) targets.add(`${x},${y}`)
+/** BFS shortest path with optional reversal avoidance. */
+export function routeTowards(maze: Maze,from: Point,target: Point,avoid?:Direction):Direction|null {
+  const options=neighbors(maze,from)
+  if(!options.length)return null
+  const available=options.filter(option=>option.direction!==avoid)
+  const candidates=available.length?available:options
+  let destination=target
+  if(!walkable(maze,destination)){
+    let best=Infinity
+    for(let y=1;y<maze.height-1;y++)for(let x=1;x<maze.width-1;x++){
+      if(maze.walls[y][x])continue
+      const distance=Math.abs(target.x-x)+Math.abs(target.y-y)
+      if(distance<best){best=distance;destination={x,y}}
     }
   }
-  // BFS from each legal first step; a small grid keeps this cheap and deterministic.
-  let best: Direction = available[0].direction
-  let bestDistance = Infinity
-  for (const option of available) {
-    const seenDepth = new Map<string, number>([[keyOf(option.point), 0]])
-    // Scope a separate depth table per BFS run; route is shortest number of cells.
-    const run = () => {
-      const queue = [option.point]
-      const visited = new Set([keyOf(option.point)])
-      let cursor = 0
-      while (cursor < queue.length) {
-        const point = queue[cursor++]
-        const d = seenDepth.get(keyOf(point))!
-        if (targets.has(keyOf(point))) return d
-        for (const next of neighbors(maze, point)) {
-          const k = keyOf(next.point)
-          if (visited.has(k)) continue
-          visited.add(k)
-          seenDepth.set(k, d + 1)
-          queue.push(next.point)
-        }
-      }
-      return Infinity
+  const depths=new Map<string,number>([[keyOf(destination),0]])
+  const queue=[destination]
+  for(let head=0;head<queue.length;head++){
+    const point=queue[head]
+    const depth=depths.get(keyOf(point))!
+    for(const step of neighbors(maze,point)){
+      const key=keyOf(step.point)
+      if(depths.has(key))continue
+      depths.set(key,depth+1)
+      queue.push(step.point)
     }
-    const d = run()
-    if (d < bestDistance) { bestDistance = d; best = option.direction }
   }
-  return best
+  let bestOption=candidates[0]
+  let bestDistance=Infinity
+  for(const option of candidates){
+    const d=depths.get(keyOf(option.point))??Infinity
+    if(d<bestDistance){bestOption=option;bestDistance=d}
+  }
+  return bestOption.direction
 }
