@@ -1,9 +1,9 @@
 import * as Phaser from 'phaser'
-import type { GameContext, GameInstance, GameModule } from '../../engine/games/types'
+import type { GameContext, GameModule } from '../../engine/games/types'
 import type { PlayerAction } from '../../engine/input/InputRouter'
 import {
-  createMaze, walkable, neighbors, routeTowards, keyOf, DELTA, OPPOSITE,
-  PLAYER_SPAWN, type Maze, type Direction, type Point,
+  createMaze, walkable, routeTowards, keyOf, DELTA, OPPOSITE,
+  PLAYER_SPAWN, type Direction, type Point,
 } from './maze'
 
 /**
@@ -77,12 +77,11 @@ class KasiMazeScene extends Phaser.Scene {
   private score = 0
   private lives = 3
   private level = 1
-  private time = 0
+  private runTime = 0
   private empowered = 0
   private invincible = 0
   private pulse = 0
   private combo = 0
-  private remainingLabel!: Phaser.GameObjects.Text
   private livesLabel!: Phaser.GameObjects.Text
   private levelLabel!: Phaser.GameObjects.Text
   private statusLabel!: Phaser.GameObjects.Text
@@ -91,7 +90,6 @@ class KasiMazeScene extends Phaser.Scene {
   private cameraGlow!: Phaser.GameObjects.Arc
   private trailTime = 0
   private intro = 0
-  private totalAtStart = 0
   constructor(private readonly context: GameContext, private readonly audio: ReturnType<typeof createAudio>) {
     super({ key: 'KasiMaze' })
   }
@@ -152,7 +150,7 @@ class KasiMazeScene extends Phaser.Scene {
     this.add.circle(85, 510, 11, 0xffd26b, .25).setStrokeStyle(3, 0xffd26b)
     this.add.text(103, 502, 'POWER UP', { fontFamily: 'monospace', fontSize: '16px', color: '#ffe7b2' }).setDepth(6)
     const rightX = LEFT + 27 * TILE + 50
-    this.remainingLabel = this.add.text(rightX, 295, 'BEATS LEFT', {
+    this.add.text(rightX, 295, 'BEATS LEFT', {
       fontFamily: 'monospace', fontSize: '14px', color: '#839e99',
     }).setDepth(6)
     this.statusLabel = this.add.text(rightX, 335, '000', {
@@ -208,7 +206,7 @@ class KasiMazeScene extends Phaser.Scene {
     const walls = this.wallPaint
     floor.clear()
     walls.clear()
-    for (const dot of this.dots.values()) dot.destroy()
+    for (const dot of this.dots.values()) { this.tweens.killTweensOf(dot); dot.destroy() }
     this.dots.clear()
     const panelSize = TILE * 27
     floor.fillStyle(0x0b1425).fillRoundedRect(LEFT, TOP, panelSize, TILE * 21, 12)
@@ -258,7 +256,6 @@ class KasiMazeScene extends Phaser.Scene {
         this.tweens.add({ targets: dot, scale: 1.2, yoyo: true, repeat: -1, duration: 520 + (x % 3) * 70 })
       }
     }
-    this.totalAtStart = this.dots.size
     this.updateHUD()
   }
   private place(mover: Mover) {
@@ -278,7 +275,7 @@ class KasiMazeScene extends Phaser.Scene {
       rival.row = this.maze.enemies[i].y
       rival.direction = null
       rival.progress = 0
-      rival.releaseAt = this.time + 1.6 + i * 2.2
+      rival.releaseAt = this.runTime + 1.6 + i * 2.2
       rival.respawnIn = 0
       rival.node.setAlpha(1).setVisible(true).setScale(1)
       this.place(rival)
@@ -291,7 +288,7 @@ class KasiMazeScene extends Phaser.Scene {
     this.level = 1
     this.score = 0
     this.lives = 3
-    this.time = 0
+    this.runTime = 0
     this.running = true
     this.empowered = 0
     this.combo = 0
@@ -307,7 +304,7 @@ class KasiMazeScene extends Phaser.Scene {
   private nextLevel() {
     this.level++
     this.score += 800 * this.level
-    this.time += .1
+    this.runTime += .1
     this.empowered = 0
     this.combo = 0
     this.invincible = 2.8
@@ -338,7 +335,7 @@ class KasiMazeScene extends Phaser.Scene {
     const point = { x: rival.col, y: rival.row }
     const reverse = rival.direction ? OPPOSITE[rival.direction] : undefined
     const scared = this.empowered > 0
-    const scatter = Math.floor(this.time / 12) % 4 === 3
+    const scatter = Math.floor(this.runTime / 12) % 4 === 3
     let target = this.runnerTarget()
     if (scatter) target = rival.style.corner
     else if (scared) {
@@ -417,7 +414,7 @@ class KasiMazeScene extends Phaser.Scene {
     const x = this.runner.node.x
     const y = this.runner.node.y
     for (const rival of this.rivals) {
-      if (rival.respawnIn > 0 || this.time < rival.releaseAt) continue
+      if (rival.respawnIn > 0 || this.runTime < rival.releaseAt) continue
       const dx = x - rival.node.x
       const dy = y - rival.node.y
       if (dx * dx + dy * dy > (TILE * .69) ** 2) continue
@@ -477,7 +474,7 @@ class KasiMazeScene extends Phaser.Scene {
   update(_time: number, delta: number) {
     if (!this.prepared || !this.running) return
     const dt = Math.min(delta / 1000, .05)
-    this.time += dt
+    this.runTime += dt
     this.pulse += dt
     this.intro = Math.max(0, this.intro - dt)
     this.empowered = Math.max(0, this.empowered - dt)
@@ -505,13 +502,13 @@ class KasiMazeScene extends Phaser.Scene {
           rival.row = spawn.y
           rival.direction = null
           rival.progress = 0
-          rival.releaseAt = this.time + .8
+          rival.releaseAt = this.runTime + .8
           rival.node.setVisible(true).setAlpha(1)
           this.place(rival)
         }
         continue
       }
-      if (this.time < rival.releaseAt) continue
+      if (this.runTime < rival.releaseAt) continue
       rival.node.setAlpha(this.empowered > 0 ? .5 + Math.sin(this.pulse * 10) * .2 : 1)
       this.move(rival, dt, (this.empowered > 0 ? 3.2 : 4 + Math.min(1.35, this.level * .15)) + rival.style.personality * .085, () => this.getRivalChoice(rival))
     }
