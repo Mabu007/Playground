@@ -82,15 +82,11 @@ class KasiMazeScene extends Phaser.Scene {
     if(this.pending)this.startRun()
   }
   private makeHUD(){
-    const heading=this.add.text(LEFT,29,'KASI  /  MAZE',{
-      fontFamily:'Space Grotesk, sans-serif',fontSize:'25px',fontStyle:'bold',color:'#E8FFF1',
+    this.districtLabel=this.add.text(LEFT+6,77,'DISTRICT 01  /  TAXI RANK NIGHTS',{
+      fontFamily:'monospace',fontSize:'13px',color:'#E1FFF0',fontStyle:'bold',
     }).setDepth(10)
-    heading.setShadow(0,0,'#7CFFC4',8)
-    this.districtLabel=this.add.text(LEFT+230,40,'DISTRICT 01  /  TAXI RANK NIGHTS',{
-      fontFamily:'monospace',fontSize:'13px',color:'#C8E2DC',fontStyle:'bold',
-    }).setDepth(10)
-    this.livesLabel=this.add.text(LEFT+COLUMNS*TILE,29,'◆  ◆  ◆',{
-      fontFamily:'monospace',fontSize:'23px',color:'#BEFF85',
+    this.livesLabel=this.add.text(LEFT+COLUMNS*TILE,76,'◆  ◆  ◆',{
+      fontFamily:'monospace',fontSize:'18px',color:'#BEFF85',
     }).setOrigin(1,0).setDepth(10)
     this.counterLabel=this.add.text(LEFT+18,TOP+ROWS*TILE+8,'BEATS LEFT   000',{
       fontFamily:'monospace',fontSize:'14px',color:'#D1EEE6',
